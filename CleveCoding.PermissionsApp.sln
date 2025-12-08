@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CleveCoding.PermissionsApp"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CleveCoding.Permissions", "src\CleveCoding.Permissions\CleveCoding.Permissions.csproj", "{BA67D56A-B272-4A72-984B-77F212C71AFE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CleveCoding.Kernel", "src\CleveCoding.Kernel\CleveCoding.Kernel.csproj", "{2D918447-4B3D-457F-A836-2D8E44ECA4FE}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{BA67D56A-B272-4A72-984B-77F212C71AFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA67D56A-B272-4A72-984B-77F212C71AFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA67D56A-B272-4A72-984B-77F212C71AFE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2D918447-4B3D-457F-A836-2D8E44ECA4FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2D918447-4B3D-457F-A836-2D8E44ECA4FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2D918447-4B3D-457F-A836-2D8E44ECA4FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2D918447-4B3D-457F-A836-2D8E44ECA4FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

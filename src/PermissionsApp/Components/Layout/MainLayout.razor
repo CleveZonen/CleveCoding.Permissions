@@ -1,8 +1,4 @@
-﻿@using CleveCoding.Permissions.Middleware
-
-@inherits LayoutComponentBase
-
-@inject UserContextInitializer UserContextInitializer
+﻿@inherits LayoutComponentBase
 
 <div class="page">
     <div class="sidebar">
@@ -11,7 +7,7 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            <a href="https://github.com/CleveZonen/CleveCoding.Permissions" target="_blank">Github</a>
         </div>
 
         <article class="content px-4">
@@ -25,20 +21,3 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
-
-@code {
-
-    private bool _initialized;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && !_initialized)
-        {
-            await UserContextInitializer.InitializeAsync();
-            _initialized = true;
-
-            StateHasChanged(); // refresh UI.
-        }
-    }
-
-}

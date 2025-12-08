@@ -1,7 +1,56 @@
 ﻿@page "/"
 
+@using CleveCoding.Permissions
+
+@inject IUserAccessor UserAccessor
+
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Welcome to the Permissions Package.</h1>
+<p>The Permission Package extends upon the IUserAccount in the CleveCoding.Kernel foundational package. The <strong>UserAccount</strong> and <strong>UserAccessor</strong> are now found in the Permission Package.</p>
 
-Welcome to your new app.
+<p>User: @UserAccessor.CurrentUser?.AccountName</p>
+<p>IsAdmin: @UserAccessor.IsAdmin(UserAccessor.CurrentUser)</p>
+
+<h3>Implementation</h3>
+<p>Implementation is relatively straight forward.</p>
+<ol>
+    <li>Install the CleveCoding.Permissions package with NuGet from the Cleve Github Packages.</li>
+    <li>
+        <p>In Program.cs add in the ServiceCollection section:</p>
+        <code>
+            <pre>
+    // Add the Permissions. Ensure the call is after AddAuthentication!
+    builder.Services.AddCascadingAuthenticationState();
+    builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
+        .AddNegotiate();
+    builder.Services.AddAuthorization(options =>
+    {
+         // By default, all incoming requests will be authorized according to the default policy.
+         options.FallbackPolicy = options.DefaultPolicy;
+    });
+    builder.Services.AddPermissions&lt;GetItemsForIndexRequest&gt;(config =>
+    {
+        config.ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+        config.AdminRoles = RoleNames.Administrator;
+    });
+            </pre>
+        </code>
+    </li>
+    <li>
+        <p>
+            In Program.cs add <strong>after</strong> "<span style="font-style:italic">var app = builder.Build()</span>" is called,
+            but <strong>before</strong> "<span style="font-style:italic">app.MapRazorComponents&lt;App&gt;()</span>":
+        </p>
+        <code>
+            <pre>
+    // Use the Permissions. Ensure the call is after UseAuthentication!
+    app.UseAuthentication();
+    app.UseAuthorization();
+    await app.UsePermissions();
+            </pre>
+        </code>
+    </li>
+</ol>
+
+<p>Alternatively you can inspect the source-code of this project for implementation on <a href="https://github.com/CleveZonen/CleveCoding.Permissions" target="_blank">Github</a>.</p>
