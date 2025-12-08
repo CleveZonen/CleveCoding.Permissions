@@ -1,23 +1,43 @@
 ﻿@page "/"
 
 @using CleveCoding.Permissions
+@using CleveCoding.Permissions.Models
 
 @inject IUserAccessor UserAccessor
+@inject IEnumerable<PermissionDescription> Permissions
 
 <PageTitle>Home</PageTitle>
 
 <h1>Welcome to the Permissions Package.</h1>
-<p>The Permission Package extends upon the IUserAccount in the CleveCoding.Kernel foundational package. The <strong>UserAccount</strong> and <strong>UserAccessor</strong> are now found in the Permission Package.</p>
-
-<p>User: @UserAccessor.CurrentUser?.AccountName</p>
-<p>IsAdmin: @UserAccessor.IsAdmin(UserAccessor.CurrentUser)</p>
+<div class="row">
+    <div class="col-6">
+        The Permissions Package extends upon the IUserAccount in the <a href="https://github.com/CleveZonen/CleveCoding.Kernel" target="_blank">CleveCoding.Kernel</a> foundational package.
+        The <strong>UserAccount</strong> and <strong>UserAccessor</strong> are now found in the Permissions Package.
+    </div>
+    <div class="col">
+        <strong>Discovered Permissions:</strong>
+        <ul>
+            @foreach (var permDesc in Permissions)
+            {
+                <li>@($"{permDesc.Resource}.{permDesc.Action} - {permDesc.Description}")</li>
+            }
+        </ul>
+    </div>
+    <div class="col">
+        <strong>Current User:</strong>
+        <p>
+            User: @UserAccessor.CurrentUser?.AccountName<br />
+            IsAdmin: @UserAccessor.IsAdmin(UserAccessor.CurrentUser)
+        </p>
+    </div>
+</div>
 
 <h3>Implementation</h3>
 <p>Implementation is relatively straight forward.</p>
 <ol>
     <li>Install the CleveCoding.Permissions package with NuGet from the Cleve Github Packages.</li>
     <li>
-        <p>In Program.cs add in the ServiceCollection section:</p>
+        <p>In Program.cs add in the ServiceCollection section, after the Authentications calls:</p>
         <code>
             <pre>
     // Add the Permissions. Ensure the call is after AddAuthentication!
@@ -40,7 +60,7 @@
     <li>
         <p>
             In Program.cs add <strong>after</strong> "<span style="font-style:italic">var app = builder.Build()</span>" is called,
-            but <strong>before</strong> "<span style="font-style:italic">app.MapRazorComponents&lt;App&gt;()</span>":
+            but <strong>before</strong> "<span style="font-style:italic">app.MapRazorComponents&lt;App&gt;()</span>"
         </p>
         <code>
             <pre>
@@ -54,3 +74,46 @@
 </ol>
 
 <p>Alternatively you can inspect the source-code of this project for implementation on <a href="https://github.com/CleveZonen/CleveCoding.Permissions" target="_blank">Github</a>.</p>
+
+<h3>Usage</h3>
+<p>Using the permissions package is even simpler then implementing it. Make sure to implement the IRequirePermission-interface on the Requests and Commands used by MediatR.</p>
+<p>
+    <strong>Resource:</strong> Logical name for resources/modules.<br />
+    <strong>Action:</strong> User action are defined in the UserActionType enumeration.<br />
+    <strong>Description:</strong> User friendly description for the permissions control panel (page for granting and revoking permissions).
+</p>
+<code>
+    <pre>
+public record GetItemsForIndexRequest : ICommand&lt;Response&gt;, IRequirePermission
+{
+    public PermissionDescription RequiredPermission => new(nameof(Item), UserActionType.ViewIndex, "Access to items index.");
+}
+    </pre>
+</code>
+
+<h4>Notes</h4>
+<ul>
+    <li>UserAccount and UserAccessor are managed in this package.</li>
+    <li>There is no registry of permissions, they are discovered by scanning for IRequirePermission in the assembly. When calling AddPermissions&lt;T&gt;() the T-type will be used to scan the containing assembly on IRequirePermission.</li>
+    <li>The user- and role permissions are managed by EntityFramework Core. The ConnectionString given into AddPermissions() with PermissionConfigurations is passed to EF Core.</li>
+    <li>Database migrations are checked and executed on application startup.</li>
+    <li>Changes in user- and role permissions are automatically audited. The Audits can be requested with IPermissionService.</li>
+    <li>All user- and role permissions are cached using IMemoryCache.</li>
+    <li>The verification if an user has the permission to access an resource is automatically checked in MediatR's (behavior) pipeline based on IRequirePermission.</li>
+    <li>Users with Administrator-roles are excluded on the permission verification.</li>
+    <li>The CurrentUser in UserAccessor is automatically populated in the Middleware by using UserContextInitializer - no need to explicitly call TryLoadUserAsync() on every component/page.</li>
+    <li>User- and role permissions are merged when populating the CurrentUser, with the user permission taking priority.</li>
+</ul>
+<h5>Access with DI</h5>
+<dl>
+    <dt>IEnumerable&lt;PermissionDescription&gt;</dt>
+    <dd>All the PermissionDescription of discovered IRequiredPermissions.</dd>
+    <dt>IPermissionService</dt>
+    <dd>Used to manage the user- and role permissions incl access to the audits.</dd>
+    <dt>IUserAccessor</dt>
+    <dd>Get the current user and methods to check if an user has the admin role.</dd>
+    <dt>PermissionConfigurations</dt>
+    <dd>The configurations for the Permissions Package. Contains the ConnectionString and AdminRoles.</dd>
+    <dt>IUserContextInitializer</dt>
+    <dd>The UserContextInitializer is used as Middleware to populate the UserAccessor (InvokeAsync), but can be manually retrieved to populate the UserAccessor.CurrentUser (InitializeAsync).</dd>
+</dl>

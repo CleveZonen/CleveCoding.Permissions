@@ -1,7 +1,7 @@
 using System.Runtime.Versioning;
 using CleveCoding.Permissions.Extensions;
 using CleveCoding.PermissionsApp.Components;
-using CleveCoding.PermissionsApp.Features.UserReviews;
+using CleveCoding.PermissionsApp.Features.Item;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,7 +25,7 @@ builder.Services.AddAuthorization(options =>
 	// By default, all incoming requests will be authorized according to the default policy.
 	options.FallbackPolicy = options.DefaultPolicy;
 });
-builder.Services.AddPermissions<GetUserReviewsForIndexRequest>(config =>
+builder.Services.AddPermissions<GetItemsForIndexRequest>(config =>
 {
 	config.ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
 	config.AdminRoles = ["HRM-Role-Administrators", "HRM-Role-Development"];
