@@ -1,4 +1,5 @@
 using System.Runtime.Versioning;
+using CleveCoding.Kernel.Cryptography;
 using CleveCoding.Permissions.Extensions;
 using CleveCoding.PermissionsApp.Components;
 using CleveCoding.PermissionsApp.Features.Item;
@@ -6,6 +7,17 @@ using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.EntityFrameworkCore;
 
 [assembly: SupportedOSPlatform("windows")]
+
+#region [ ENCRYPTION ]
+
+// <important>
+// 	The encryption key is used to encrypted and decrypt data.
+// 	Without the key, encrypted data can NOT be decrypted. 
+//  DO NOT CHANGE EVER!!
+// </important>
+Encryption.SetKey("7Cxt^ekhL@#*(@!ew$3ew.sd;,asd234");
+
+#endregion [ ENCRYPTION ]
 
 var builder = WebApplication.CreateBuilder(args);
 

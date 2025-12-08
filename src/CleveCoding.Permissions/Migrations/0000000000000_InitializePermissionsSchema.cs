@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CleveCoding.Permissions.Migrations
 {
     /// <inheritdoc />
-    public partial class InitializeSchema : Migration
+    public partial class InitializePermissionsSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,9 +16,9 @@ namespace CleveCoding.Permissions.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RoleId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Resource = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<string>(type: "varchar(max)", nullable: true),
+                    RoleId = table.Column<string>(type: "varchar(max)", nullable: true),
+                    Resource = table.Column<string>(type: "varchar(max)", nullable: false),
                     Action = table.Column<int>(type: "int", nullable: false),
                     OldValue = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -35,9 +35,9 @@ namespace CleveCoding.Permissions.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RoleId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Resource = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<string>(type: "varchar(max)", nullable: true),
+                    RoleId = table.Column<string>(type: "varchar(max)", nullable: true),
+                    Resource = table.Column<string>(type: "varchar(max)", nullable: false),
                     Action = table.Column<int>(type: "int", nullable: false),
                     HasAccess = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),

@@ -1,4 +1,6 @@
-﻿using CleveCoding.Permissions.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using CleveCoding.Kernel.Attributes;
+using CleveCoding.Permissions.Models;
 
 namespace CleveCoding.Permissions.Entities;
 
@@ -7,21 +9,28 @@ namespace CleveCoding.Permissions.Entities;
 /// </summary>
 public record UserPermissionAuditEntity
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
-    public string? UserId { get; init; }
-    public string? RoleId { get; init; }
+	public Guid Id { get; set; } = Guid.NewGuid();
 
-    public string Resource { get; init; } = null!;
-    public UserActionType Action { get; init; }
-    public bool OldValue { get; init; }
+	[Encrypted, Column(TypeName = "varchar(max)")]
+	public string? UserId { get; init; }
 
-    /// <summary>
-    /// DateTime the change has occured.
-    /// </summary>
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+	[Encrypted, Column(TypeName = "varchar(max)")]
+	public string? RoleId { get; init; }
 
-    /// <summary>
-    /// User that triggered the audit.
-    /// </summary>
-    public string CreatedBy { get; set; } = null!;
+	[Encrypted, Column(TypeName = "varchar(max)")]
+	public string Resource { get; init; } = null!;
+
+	public UserActionType Action { get; init; }
+
+	public bool OldValue { get; init; }
+
+	/// <summary>
+	/// DateTime the change has occured.
+	/// </summary>
+	public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+	/// <summary>
+	/// User that triggered the audit.
+	/// </summary>
+	public string CreatedBy { get; set; } = null!;
 }

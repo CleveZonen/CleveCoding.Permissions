@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace CleveCoding.Permissions.Persistance.Internal;
 
+/// <summary>
+/// Mostly nessary to create migrations.
+/// </summary>
 internal class DesignTimeContextFactory : IDesignTimeDbContextFactory<PermissionDbContext>
 {
 	public PermissionDbContext CreateDbContext(string[] args)
