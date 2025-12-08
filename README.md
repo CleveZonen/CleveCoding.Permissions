@@ -52,9 +52,9 @@ You can also inspect the full source code here:
 Using the Permissions Package is even simpler than implementing it.
 Make sure to implement the **IRequirePermission** interface on the MediatR Requests/Commands.
 
-**Resource:** Logical name for resources/modules
-**Action:** User action defined in `UserActionType` enum
-**Description:** Display text for the permissions control panel UI
+- **Resource:** Logical name for resources/modules
+- **Action:** User action defined in `UserActionType` enum
+- **Description:** Display text for the permissions control panel UI
 
 ```csharp
 public record GetItemsForIndexRequest : ICommand<Response>, IRequirePermission
@@ -92,5 +92,3 @@ public record GetItemsForIndexRequest : ICommand<Response>, IRequirePermission
 | `IUserContextInitializer`            | Middleware to populate UserAccessor, but can also be called manually.  |
 
 ---
-
-If you want any refinements—styling, screenshots, badges, or turning this into a full README.md—just let me know!
