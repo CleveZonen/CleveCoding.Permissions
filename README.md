@@ -1,8 +1,4 @@
-﻿Here is the full HTML converted into clean, structured **Markdown**, preserving hierarchy, code blocks, formatting, and links.
-
----
-
-# Welcome to the Permissions Package
+﻿# Welcome to the Permissions Package
 
 The Permissions Package extends upon the IUserAccount in the
 [CleveCoding.Kernel](https://github.com/CleveZonen/CleveCoding.Kernel) foundational package.
