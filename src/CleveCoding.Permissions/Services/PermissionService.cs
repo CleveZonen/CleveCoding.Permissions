@@ -38,8 +38,19 @@ public interface IPermissionService
     /// <returns></returns>
     Task SetRolePermissionsAsync(UserPermission permission, bool newValue);
 
-    // todo: get audits for user
-    // todo: get audits for role
+    /// <summary>
+    /// Get the permission audits for the given user.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task<IEnumerable<UserPermissionAudit>?> GetAuditsForUserAsync(string userId);
+
+    /// <summary>
+    /// Get the permission audits for the given role.
+    /// </summary>
+    /// <param name="roleId"></param>
+    /// <returns></returns>
+    Task<IEnumerable<UserPermissionAudit>?> GetAuditsForRoleAsync(string roleId);
 }
 
 public class PermissionService(PermissionDbContext Context, PermissionCache PermissionCache, IUserAccessor UserAccessor) : IPermissionService
@@ -126,13 +137,16 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
         var actor = UserAccessor.CurrentUser!.AccountName;
         var userId = permission.UserId
             ?? throw new ArgumentException("UserId cannot be null for user permissions.");
+
+        await using var transaction = await Context.Database.BeginTransactionAsync();
+
         var existing = await Context.UserPermissions.FirstOrDefaultAsync(x =>
             x.UserId == userId &&
             x.Resource == permission.Resource &&
             x.Action == permission.Action
         );
 
-        // create permission.
+        // new permission.
         if (existing == null)
         {
             await Context.UserPermissions.AddAsync(new UserPermissionEntity
@@ -155,13 +169,10 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
             });
 
             await Context.SaveChangesAsync();
-            await PermissionCache.InvalidateForUserAsync(userId);
-
-            return;
+            await transaction.CommitAsync();
         }
-
-        // update permission.
-        if (existing.HasAccess != newValue)
+        // change permission.
+        else if (existing.HasAccess != newValue)
         {
             Context.UserPermissions.Remove(existing);
 
@@ -187,8 +198,13 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
             });
 
             await Context.SaveChangesAsync();
-            await PermissionCache.InvalidateForUserAsync(userId);
+            await transaction.CommitAsync();
         }
+
+        // invalidate cache
+        await PermissionCache.InvalidateForUserAsync(userId);
+
+        return;
     }
 
     /// <inheritdoc/>
@@ -198,6 +214,9 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
         var actor = UserAccessor.CurrentUser!.AccountName;
         var roleId = permission.RoleId
             ?? throw new ArgumentException("RoleId cannot be null for role permissions.");
+
+        await using var transaction = await Context.Database.BeginTransactionAsync();
+
         var existing = await Context.UserPermissions.FirstOrDefaultAsync(x =>
             x.UserId == null &&
             x.RoleId == roleId &&
@@ -205,6 +224,7 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
             x.Action == permission.Action
         );
 
+        // new permission.
         if (existing == null)
         {
             await Context.UserPermissions.AddAsync(new UserPermissionEntity
@@ -227,15 +247,10 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
             });
 
             await Context.SaveChangesAsync();
-
-            // invalidate caches
-            await PermissionCache.InvalidateForRoleAsync(permission.RoleId);
-            await InvalidateUserCachesForRoleAsync(roleId);
-
-            return;
+            await transaction.CommitAsync();
         }
-
-        if (existing.HasAccess != newValue)
+        // change permission.
+        else if (existing.HasAccess != newValue)
         {
             Context.UserPermissions.Remove(existing);
 
@@ -261,8 +276,55 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
             });
 
             await Context.SaveChangesAsync();
-            await PermissionCache.InvalidateForRoleAsync(permission.RoleId);
-            await InvalidateUserCachesForRoleAsync(roleId);
+            await transaction.CommitAsync();
         }
+
+        // invalidate caches
+        await PermissionCache.InvalidateForRoleAsync(permission.RoleId);
+        var users = UserLookupService.GetUsersInRole(roleId);
+        if (users != null)
+        {
+            foreach (var user in users)
+            {
+                await PermissionCache.InvalidateForUserAsync(user.SamAccountName);
+            }
+        }
+
+        return;
+    }
+
+    /// <inheritdoc/>
+    public async Task<IEnumerable<UserPermissionAudit>?> GetAuditsForUserAsync(string userId)
+    {
+        return await Context.UserPermissionAudits
+            .Where(x => x.UserId == userId)
+            .Select(x => new UserPermissionAudit
+            {
+                UserId = userId,
+                RoleId = x.RoleId,
+                Resource = x.Resource,
+                Action = x.Action,
+                OldValue = x.OldValue,
+                CreatedAt = x.CreatedAt,
+                CreatedBy = x.CreatedBy,
+            })
+            .ToListAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task<IEnumerable<UserPermissionAudit>?> GetAuditsForRoleAsync(string roleId)
+    {
+        return await Context.UserPermissionAudits
+            .Where(x => x.RoleId == roleId && x.UserId == null)
+            .Select(x => new UserPermissionAudit
+            {
+                RoleId = x.RoleId,
+                Resource = x.Resource,
+                Action = x.Action,
+                OldValue = x.OldValue,
+                CreatedAt = x.CreatedAt,
+                CreatedBy = x.CreatedBy,
+            })
+            .ToListAsync();
     }
 }

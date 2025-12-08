@@ -1,4 +1,5 @@
 ﻿using CleveCoding.Permissions.Behaviors;
+using CleveCoding.Permissions.Configurations;
 using CleveCoding.Permissions.Middleware;
 using CleveCoding.Permissions.Models;
 using CleveCoding.Permissions.Persistance;
@@ -7,18 +8,23 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace CleveCoding.Permissions.Extensions;
 
-public static class IServiceCollectionExtensions
+public static class PermissionServiceCollectionExtensions
 {
-    public static void AddPermissions<T>(this IServiceCollection services, string connectionString)
+    public static void AddPermissions<T>(this IServiceCollection services, Action<PermissionConfigurations> configuration)
         where T : IRequirePermission
     {
+        var permissionConfigurations = new PermissionConfigurations();
+        configuration.Invoke(permissionConfigurations);
+
+        // register the configuration
+        services.AddSingleton(permissionConfigurations);
+
         // register the DbContext for the permissions,
         // EF Core is used for storage management.
-        services.AddDbContext<PermissionDbContext>(options => options.UseSqlServer(connectionString,
+        services.AddDbContext<PermissionDbContext>(options => options.UseSqlServer(permissionConfigurations.ConnectionString,
             sqlServerOptionsAction: sqlOptions => sqlOptions.MigrationsAssembly(typeof(PermissionDbContext).Assembly.FullName)), ServiceLifetime.Transient);
 
         // register the PermissionService and its required classes.
@@ -43,18 +49,20 @@ public static class IServiceCollectionExtensions
 
         // scan for IRequirePermission to collect PermissionDescription
         // and register it in services as IEnumerable
-        var typeToAdd = typeof(T);
-        var assembly = Assembly.GetAssembly(typeToAdd);
-        var foundPermissions = new List<PermissionDescription>();
-        foreach (var definedType in assembly!.DefinedTypes.Where(x => x.GetInterfaces().Contains(typeToAdd)))
+        var assembly = typeof(T).Assembly;
+        var interfaceType = typeof(IRequirePermission);
+        var results = new List<PermissionDescription>();
+        foreach (var type in assembly.DefinedTypes.Where(t => interfaceType.IsAssignableFrom(t) && !t.IsAbstract))
         {
-            if (definedType is IRequirePermission requirePermission)
+            // create instance and read instance property
+            if (Activator.CreateInstance(type) is IRequirePermission instance && instance.RequiredPermission != null)
             {
-                foundPermissions.Add(requirePermission.RequiredPermission);
+                results.Add(instance.RequiredPermission);
             }
         }
 
-        services.AddSingleton(typeof(IEnumerable<IPermissionService>), foundPermissions);
+        // register as IEnumerable<PermissionDescription>
+        services.AddSingleton<IEnumerable<PermissionDescription>>(results);
     }
 
     public static async Task UsePermissions(this IApplicationBuilder app)

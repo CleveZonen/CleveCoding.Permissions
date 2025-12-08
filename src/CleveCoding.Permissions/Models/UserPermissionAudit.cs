@@ -7,7 +7,7 @@ public record UserPermissionAudit
 
     public string Resource { get; init; } = null!;
     public UserActionType Action { get; init; }
-    public bool NewValue { get; init; }
+    public bool OldValue { get; init; }
 
     /// <summary>
     /// DateTime the change has occured.
