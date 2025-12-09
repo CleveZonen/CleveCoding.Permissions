@@ -43,7 +43,7 @@ public abstract class ProtectedComponentBase : ComponentBase
 			?? throw new ForbiddenException("Unauthorized user access - unkown user.");
 
 		// skip check if the user is admin.
-		if (UserAccessor.IsAdmin(user))
+		if (UserAccessor.IsAdmin(user!))
 		{
 			base.OnInitialized();
 			return;
@@ -58,7 +58,7 @@ public abstract class ProtectedComponentBase : ComponentBase
 		var hasAccess = false;
 		foreach (var attr in attrs)
 		{
-			if (user.HasPermission(attr.Resource, attr.Action))
+			if (user!.HasPermission(attr.Resource, attr.Action))
 			{
 				hasAccess = true;
 			}

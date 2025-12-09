@@ -27,9 +27,10 @@ public static class PermissionServiceCollectionExtensions
 		services.AddDbContext<PermissionDbContext>(options => options.UseSqlServer(permissionConfigurations.ConnectionString,
 			sqlServerOptionsAction: sqlOptions => sqlOptions.MigrationsAssembly(typeof(PermissionDbContext).Assembly.FullName)), ServiceLifetime.Transient);
 
-		// register the PermissionService and its required classes.
+		// register the Services.
 		services.AddMemoryCache();
 		services.AddScoped<PermissionCache>();
+		services.AddScoped<IUserLookupService, UserLookupService>();
 		services.AddScoped<IPermissionService, PermissionService>();
 
 		// register the UserAccessor and its required classes.

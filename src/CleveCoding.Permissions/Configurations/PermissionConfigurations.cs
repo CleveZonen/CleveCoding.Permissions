@@ -2,6 +2,7 @@
 
 public record PermissionConfigurations
 {
-    public string[] AdminRoles { get; set; } = [];
-    public string ConnectionString { get; set; } = string.Empty;
+	public string ConnectionString { get; set; } = null!;
+	public string[] AdminRoles { get; set; } = [];
+	public string[] Roles { get; set; } = [];
 }

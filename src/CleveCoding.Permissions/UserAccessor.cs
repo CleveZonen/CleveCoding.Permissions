@@ -25,6 +25,13 @@ public interface IUserAccessor
 	Task TryLoadUserAsync(bool forceReload = false, bool callFromMiddleware = false);
 
 	/// <summary>
+	/// Load UserAccount based on user identity (Claims Principle).
+	/// </summary>
+	/// <param name="identity"></param>
+	/// <returns></returns>
+	UserAccount LoadUser(IIdentity identity);
+
+	/// <summary>
 	/// Check if the given user is in the administrator role.
 	/// </summary>
 	/// <param name="user"></param>
@@ -112,30 +119,7 @@ public sealed class UserAccessor : IDisposable, IUserAccessor
 	}
 
 	/// <inheritdoc/>
-	public bool IsAdmin(IUserAccount user)
-	{
-		return user.IsInRoles(_configurations.AdminRoles);
-	}
-
-	/// <inheritdoc/>
-	public bool IsAdmin(UserPrincipal user)
-	{
-		return user.GetGroups()
-			.OfType<GroupPrincipal>()
-			.Any(g => _configurations.AdminRoles.Contains(g.Name, StringComparer.OrdinalIgnoreCase));
-	}
-
-	public void Dispose()
-	{
-		_subscription.Dispose();
-	}
-
-	/// <summary>
-	/// Load UserAccount based on user identity (Claims Principle).
-	/// </summary>
-	/// <param name="identity"></param>
-	/// <returns></returns>
-	private static UserAccount LoadUser(IIdentity identity)
+	public UserAccount LoadUser(IIdentity identity)
 	{
 		// reset current user.
 		var currentUser = new UserAccount();
@@ -189,5 +173,24 @@ public sealed class UserAccessor : IDisposable, IUserAccessor
 			.Select(x => x[1]);
 
 		return currentUser;
+	}
+
+	/// <inheritdoc/>
+	public bool IsAdmin(IUserAccount user)
+	{
+		return user.IsInRoles(_configurations.AdminRoles);
+	}
+
+	/// <inheritdoc/>
+	public bool IsAdmin(UserPrincipal user)
+	{
+		return user.GetGroups()
+			.OfType<GroupPrincipal>()
+			.Any(g => _configurations.AdminRoles.Contains(g.Name, StringComparer.OrdinalIgnoreCase));
+	}
+
+	public void Dispose()
+	{
+		_subscription.Dispose();
 	}
 }
