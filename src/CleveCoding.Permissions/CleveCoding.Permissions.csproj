@@ -16,6 +16,7 @@
   <ItemGroup>
 	  <PackageReference Include="CleveCoding.Kernel" Version="1.0.2" />
 	  <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.11" />
+	  <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.11" />
 	  <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
 	  <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.3" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.11">

@@ -5,7 +5,6 @@ using CleveCoding.Permissions.Models;
 using CleveCoding.Permissions.Persistance;
 using CleveCoding.Permissions.Services;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -40,7 +39,7 @@ public static class PermissionServiceCollectionExtensions
 		// register the UserContextInitializer
 		// to populate the UserAccount with its permissions.
 		services.AddTransient<UserContextInitializer>();
-		services.AddTransient<IMiddleware, UserContextInitializer>();
+		services.AddTransient<ForbiddenExceptionHandler>();
 
 		// register the MediatR permissions checks.
 		services.AddMediatR(cfg =>
@@ -69,8 +68,9 @@ public static class PermissionServiceCollectionExtensions
 
 	public static async Task UsePermissions(this IApplicationBuilder app)
 	{
-		// register the initializer into the pipeline.
+		// register the middlewares into the pipeline.
 		app.UseMiddleware<UserContextInitializer>();
+		app.UseMiddleware<ForbiddenExceptionHandler>();
 
 		// run the permissions migrations on startup.
 		using var scope = app.ApplicationServices.CreateScope();

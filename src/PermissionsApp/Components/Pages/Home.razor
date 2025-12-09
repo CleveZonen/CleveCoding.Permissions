@@ -1,8 +1,5 @@
 ﻿@page "/"
 
-@using CleveCoding.Permissions
-@using CleveCoding.Permissions.Models
-
 @inject IUserAccessor UserAccessor
 @inject IEnumerable<PermissionDescription> Permissions
 
@@ -19,7 +16,9 @@
         <ul>
             @foreach (var permDesc in Permissions)
             {
-                <li>@($"{permDesc.Resource}.{permDesc.Action} - {permDesc.Description}")</li>
+                <ProtectedArea Resource="@permDesc.Resource" Action="permDesc.Action">
+                    <li>@($"{permDesc.Resource}.{permDesc.Action} - {permDesc.Description}")</li>
+                </ProtectedArea>
             }
         </ul>
     </div>
@@ -27,7 +26,7 @@
         <strong>Current User:</strong>
         <p>
             User: @UserAccessor.CurrentUser?.AccountName<br />
-            IsAdmin: @UserAccessor.IsAdmin(UserAccessor.CurrentUser)
+            IsAdmin: @UserAccessor.IsAdmin(UserAccessor.CurrentUser!)
         </p>
     </div>
 </div>
@@ -71,12 +70,22 @@
             </pre>
         </code>
     </li>
+    <li>
+        <p>In MainLayout.razor wrap the @@Body with PermissionErrorBoundary.</p>
+        <code>
+            <pre>
+    &lt;PermissionErrorBoundary&gt;
+    @@Body            
+    &lt;PermissionErrorBoundary&gt;
+            </pre>
+        </code>
+    </li>
 </ol>
 
 <p>Alternatively you can inspect the source-code of this project for implementation on <a href="https://github.com/CleveZonen/CleveCoding.Permissions" target="_blank">Github</a>.</p>
 
 <h3>Usage</h3>
-<p>Using the permissions package is even simpler then implementing it. Make sure to implement the IRequirePermission-interface on the Requests and Commands used by MediatR.</p>
+<p>Using the permissions package is even simpler than implementing it. Make sure to implement the IRequirePermission-interface on the Requests and Commands used by MediatR.</p>
 <p>
     <strong>Resource:</strong> Logical name for resources/modules.<br />
     <strong>Action:</strong> User action are defined in the UserActionType enumeration.<br />
@@ -84,12 +93,37 @@
 </p>
 <code>
     <pre>
-public record GetItemsForIndexRequest : ICommand&lt;Response&gt;, IRequirePermission
-{
-    public PermissionDescription RequiredPermission => new(nameof(Item), UserActionType.ViewIndex, "Access to items index.");
-}
+    public record GetItemsForIndexRequest : ICommand&lt;Response&gt;, IRequirePermission
+    {
+        public PermissionDescription RequiredPermission => new(nameof(Item), UserActionType.ViewIndex, "Access to items index.");
+    }
     </pre>
 </code>
+
+<h4>Partial Protection</h4>
+<p>In <span style="font-style:italic">CleveCoding.Permissions.Web.Components</span> you can find the ProtectedArea-component, usage is very simple and is for partial protection:</p>
+<code>
+    <pre>
+    &lt;ProtectedArea Resource="Item" Action="UserActionType.ViewDetails"&gt;
+        This content is only visible to users with permission.
+    &lt;ProtectedArea"&gt;
+    </pre>
+</code>
+<p>If Access is Denied, the content is not rendered.</p>
+
+<h4>Razor Components</h4>
+<p>
+    Components can be protected by inheriting from ProtectedComponent and using the RequirePermission-attribute.
+    Multiple attributes can be used - if the user has permission for atleast one of them, access is granted.
+</p>
+<code>
+    <pre>
+    [RequirePermission("Item", UserActionType.ViewDetails)]
+        OR
+    @@attribute RequirePermission("Item", UserActionType.ViewDetails)
+    </pre>
+</code>
+<p>If Access is Denied, the content is not rendered and PermissionErrorBoundary is used to give an custom Blazor error message.</p>
 
 <h4>Notes</h4>
 <ul>
@@ -103,6 +137,7 @@ public record GetItemsForIndexRequest : ICommand&lt;Response&gt;, IRequirePermis
     <li>Users with Administrator-roles are excluded on the permission verification.</li>
     <li>The CurrentUser in UserAccessor is automatically populated in the Middleware by using UserContextInitializer - no need to explicitly call TryLoadUserAsync() on every component/page.</li>
     <li>User- and role permissions are merged when populating the CurrentUser, with the user permission taking priority.</li>
+    <li>The user-, role permissions and audits are encrypted before saving. So if your application doesnt already use Encryption, add an call to Encryption.SetKey(uniqueId) in Program.cs</li>
 </ul>
 <h5>Access with DI</h5>
 <dl>

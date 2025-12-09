@@ -1,31 +1,32 @@
 ﻿using CleveCoding.Kernel;
+using CleveCoding.Permissions.Exceptions;
 using MediatR;
 
 namespace CleveCoding.Permissions.Behaviors;
 
 public class VerifyPermissionBehavior<TRequest, TResponse>(IUserAccessor accessor)
-    : IPipelineBehavior<TRequest, TResponse>
-        where TRequest : IRequirePermission
-        where TResponse : Result
+	: IPipelineBehavior<TRequest, TResponse>
+		where TRequest : IRequirePermission
+		where TResponse : Result
 {
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
-    {
-        // get the user.
-        var user = accessor.CurrentUser
-            ?? throw new AccessDeniedException("Unauthorized user access.");
+	public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+	{
+		// get the user.
+		var user = accessor.CurrentUser
+			?? throw new ForbiddenException("Unauthorized user access - unkown user.");
 
-        // return if the user is admin.
-        if (accessor.IsAdmin(user))
-        {
-            return await next(cancellationToken);
-        }
+		// skip check if the user is admin.
+		if (accessor.IsAdmin(user))
+		{
+			return await next(cancellationToken);
+		}
 
-        // check the permission for the user.
-        if (!user.HasPermission(request.RequiredPermission))
-        {
-            throw new AccessDeniedException($"Access Denied to {request.RequiredPermission.Action} {request.RequiredPermission.Resource}.");
-        }
+		// check the permission for the user.
+		if (!user.HasPermission(request.RequiredPermission))
+		{
+			throw new ForbiddenException();
+		}
 
-        return await next(cancellationToken);
-    }
+		return await next(cancellationToken);
+	}
 }
