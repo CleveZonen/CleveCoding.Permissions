@@ -18,13 +18,11 @@ public abstract class ProtectedComponent : ComponentBase
 
 	protected override void OnInitialized()
 	{
-		if (UserAccessor.CurrentUser is null)
-		{
-			throw new ForbiddenException();
-		}
+		var user = UserAccessor.CurrentUser
+			?? throw new ForbiddenException("Unauthorized user access - unkown user.");
 
 		// skip check if the user is admin.
-		if (UserAccessor.IsAdmin(UserAccessor.CurrentUser))
+		if (UserAccessor.IsAdmin(user))
 		{
 			base.OnInitialized();
 			return;
@@ -39,7 +37,7 @@ public abstract class ProtectedComponent : ComponentBase
 		var hasAccess = false;
 		foreach (var attr in attrs)
 		{
-			if (UserAccessor.CurrentUser.HasPermission(attr.Resource, attr.Action))
+			if (user.HasPermission(attr.Resource, attr.Action))
 			{
 				hasAccess = true;
 			}
