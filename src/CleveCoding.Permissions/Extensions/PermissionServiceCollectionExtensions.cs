@@ -35,9 +35,10 @@ public static class PermissionServiceCollectionExtensions
 		services.AddScoped<IUserLookupService, UserLookupService>();
 		services.AddScoped<IPermissionService, PermissionService>();
 
-		// register the UserAccessor and its required classes.
+		// register the UserAccessor and PermissionEvaluator.
 		services.AddHttpContextAccessor();
 		services.AddScoped<IUserAccessor, UserAccessor>();
+		services.AddScoped<IPermissionEvaluator, PermissionEvaluator>();
 
 		// register the UserContextInitializer
 		// to populate the UserAccount with its permissions.

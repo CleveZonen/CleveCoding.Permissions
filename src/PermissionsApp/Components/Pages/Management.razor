@@ -22,7 +22,7 @@
         <ol class="list-group list-group-numbered">
             @foreach (var user in Users ?? [])
             {
-                <li class="list-group-item d-flex justify-content-between align-items-start @GetItemCssClass(user.SamAccountName)" @onclick="x => SelectUser(user)">
+                <li class="list-group-item d-flex justify-content-between align-items-start @GetItemCssClass(user)" @onclick="x => SelectUser(user)">
                     <div class="ms-2 me-auto">
                         <div class="fw-bold">@user.DisplayName</div>
                         @user.EmailAddress
@@ -38,7 +38,7 @@
     </div>
     <div class="col-8">
         <h2>Permissions</h2>
-        <p>Manage the permissions for @SelectedUser</p>
+        <p>Manage the permissions for @SelectedUser?.DisplayName</p>
     </div>
 </div>
 
@@ -47,7 +47,7 @@
     protected IEnumerable<string>? Roles { get; private set; }
     protected IEnumerable<UserPrincipal>? Users { get; private set; }
 
-    protected string? SelectedUser { get; private set; }
+    protected UserPrincipal? SelectedUser { get; private set; }
 
     protected override void OnInitialized()
     {
@@ -58,13 +58,13 @@
 
     private void SelectUser(UserPrincipal user)
     {
-        SelectedUser = user.SamAccountName;
+        SelectedUser = user;
         StateHasChanged();
     }
 
-    private string GetItemCssClass(string currentItem)
+    private string GetItemCssClass(UserPrincipal current)
     {
-        return SelectedUser?.Equals(currentItem, StringComparison.OrdinalIgnoreCase) == true
+        return SelectedUser?.Equals(current) == true
         ? "selected"
         : "";
     }

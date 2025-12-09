@@ -1,6 +1,5 @@
 ﻿@page "/protected"
 
-@using CleveCoding.PermissionsApp
 @using CleveCoding.Permissions.Services
 
 @attribute [RequirePermission(nameof(Items), UserActionType.ViewDetails)]
@@ -10,7 +9,7 @@
 
 @inject IPermissionService PermissionService
 
-<h1>SecurePage</h1>
+<h1>Secure page.</h1>
 <p>You have access!</p>
 
 @if (currentUserPermissions is not null)
@@ -37,7 +36,7 @@
         //     HasAccess = true
         // }, true);
 
-        currentUserPermissions = await PermissionService.GetUserPermissionsAsync(UserAccessor.CurrentUser!);
+        //currentUserPermissions = await PermissionService.GetUserPermissionsAsync(UserAccessor.CurrentUser!);
     }
 
 }

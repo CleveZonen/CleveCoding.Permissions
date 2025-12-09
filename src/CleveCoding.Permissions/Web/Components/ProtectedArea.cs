@@ -7,13 +7,16 @@ namespace CleveCoding.Permissions.Web.Components;
 public class ProtectedArea : ComponentBase
 {
 	[Inject]
-	protected IUserAccessor UserAccessor { get; set; } = default!;
+	protected IUserAccessor UserAccessor { get; set; } = null!;
+
+	[Inject]
+	protected IPermissionEvaluator PermissionEvaluator { get; set; } = null!;
 
 	/// <summary>
 	/// The permission resource to check.
 	/// </summary>
 	[Parameter, EditorRequired]
-	public string Resource { get; set; } = default!;
+	public string Resource { get; set; } = null!;
 
 	/// <summary>
 	/// The permission action to check.
@@ -31,24 +34,15 @@ public class ProtectedArea : ComponentBase
 
 	protected override void OnParametersSet()
 	{
-		var user = UserAccessor.CurrentUser;
-
 		// Do NOT block rendering during prerender if user not loaded yet.
 		// Instead, treat as unauthorized until UserContextInitializer finalizes.
-		if (user == null)
+		if (UserAccessor.CurrentUser == null)
 		{
 			IsAuthorized = false;
 			return;
 		}
 
-		// Administrators bypass permissions
-		if (UserAccessor.IsAdmin(user))
-		{
-			IsAuthorized = true;
-			return;
-		}
-
-		IsAuthorized = user.HasPermission(Resource, Action);
+		IsAuthorized = PermissionEvaluator.HasPermission(new(Resource, Action));
 	}
 
 	protected override void BuildRenderTree(RenderTreeBuilder builder)

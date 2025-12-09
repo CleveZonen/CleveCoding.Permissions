@@ -7,4 +7,4 @@
 /// <param name="Resource"></param>
 /// <param name="Action"></param>
 /// <param name="Description"></param>
-public record PermissionDescription(string Resource, UserActionType Action, string Description);
+public record PermissionDescription(string Resource, UserActionType Action, string? Description = null);

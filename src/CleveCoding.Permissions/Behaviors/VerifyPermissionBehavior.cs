@@ -13,25 +13,14 @@ namespace CleveCoding.Permissions.Behaviors;
 /// <typeparam name="TRequest"></typeparam>
 /// <typeparam name="TResponse"></typeparam>
 /// <param name="accessor"></param>
-public class VerifyPermissionBehavior<TRequest, TResponse>(IUserAccessor accessor)
+public class VerifyPermissionBehavior<TRequest, TResponse>(IPermissionEvaluator permissionEvaluator)
 	: IPipelineBehavior<TRequest, TResponse>
 		where TRequest : IRequirePermission
 		where TResponse : Result
 {
 	public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
 	{
-		// get the user.
-		var user = accessor.CurrentUser
-			?? throw new ForbiddenException("Unauthorized user access - unkown user.");
-
-		// skip check if the user is admin.
-		if (accessor.IsAdmin(user))
-		{
-			return await next(cancellationToken);
-		}
-
-		// check the permission for the user.
-		if (!user.HasPermission(request.RequiredPermission))
+		if (!permissionEvaluator.HasPermission(request.RequiredPermission))
 		{
 			throw new ForbiddenException();
 		}
