@@ -5,6 +5,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>CleveCoding Permissions Package</Title>
+    <Description>Permissions Package for Cleve Projects.</Description>
+    <PackageProjectUrl>https://github.com/CleveZonen/CleveCoding.Permissions</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/CleveZonen/CleveCoding.Permissions</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
