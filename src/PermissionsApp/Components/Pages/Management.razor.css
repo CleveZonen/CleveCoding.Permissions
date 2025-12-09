@@ -2,3 +2,7 @@
     background: #eee;
     cursor: pointer;
 }
+
+.list-group.list-group-numbered li.selected {
+    background: #ddd;
+}
