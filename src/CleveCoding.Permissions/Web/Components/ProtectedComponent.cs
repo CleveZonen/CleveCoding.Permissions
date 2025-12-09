@@ -1,8 +1,29 @@
 ﻿using CleveCoding.Permissions.Attributes;
 using CleveCoding.Permissions.Exceptions;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Rendering;
 
 namespace CleveCoding.Permissions.Web.Components;
+
+/// <summary>
+/// Protected component secured with permissions. 
+/// Renders PermissionErrorBoundary-component if access is denied.
+/// 
+/// @ForbiddenException
+///		Gets handled by CleveCoding.Permissions.Middleware.ForbiddenExceptionHandler
+/// </summary>
+public abstract class ProtectedComponent : ProtectedComponentBase
+{
+	protected override void BuildRenderTree(RenderTreeBuilder builder)
+	{
+		builder.OpenComponent<PermissionErrorBoundary>(0);
+		builder.AddAttribute(1, nameof(PermissionErrorBoundary.ChildContent), (RenderFragment)(childBuilder =>
+		{
+			base.BuildRenderTree(childBuilder);
+		}));
+		builder.CloseComponent();
+	}
+}
 
 /// <summary>
 /// Protected component secured with permissions. 
@@ -11,7 +32,7 @@ namespace CleveCoding.Permissions.Web.Components;
 /// @ForbiddenException
 ///		Gets handled by CleveCoding.Permissions.Middleware.ForbiddenExceptionHandler
 /// </summary>
-public abstract class ProtectedComponent : ComponentBase
+public abstract class ProtectedComponentBase : ComponentBase
 {
 	[Inject]
 	public IUserAccessor UserAccessor { get; set; } = default!;
