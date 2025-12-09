@@ -38,8 +38,6 @@
         // }, true);
 
         currentUserPermissions = await PermissionService.GetUserPermissionsAsync(UserAccessor.CurrentUser!);
-
-        await base.OnInitializedAsync();
     }
 
 }

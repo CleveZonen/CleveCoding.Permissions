@@ -22,7 +22,7 @@ public interface IUserAccessor
 	/// <param name="forceReload"></param>
 	/// <returns></returns>
 	/// <exception cref="InvalidOperationException"></exception>
-	Task TryLoadUserAsync(bool forceReload = false, bool callFromMiddleware = false);
+	Task TryLoadUserAsync(bool forceReload = false);
 
 	/// <summary>
 	/// Load UserAccount based on user identity (Claims Principle).
@@ -77,13 +77,13 @@ public sealed class UserAccessor : IDisposable, IUserAccessor
 	}
 
 	/// <inheritdoc/>
-	public async Task TryLoadUserAsync(bool forceReload = false, bool callFromMiddleware = false)
+	public async Task TryLoadUserAsync(bool forceReload = false)
 	{
 		if (CurrentUser is not null && !forceReload) return;
 
 		if (_applicationState is not null)
 		{
-			// get user from application state, persisted between rendermodes (between prerender- and server runs; Interactive-mode)
+			// try get user from application state, persisted between rendermodes (between prerender- and server runs; Interactive-mode)
 			var currentStateFound = _applicationState.TryTakeFromJson(nameof(CurrentUser), out UserAccount? foundUser);
 			if (currentStateFound && foundUser is not null)
 			{
@@ -94,7 +94,7 @@ public sealed class UserAccessor : IDisposable, IUserAccessor
 
 		if (_httpContextAccessor.HttpContext is not null)
 		{
-			// get user from the HttpContext directly; NOT AVAILABLE in Interactive-mode.
+			// try get user from the HttpContext directly; NOT AVAILABLE in Interactive-mode.
 			var principal = _httpContextAccessor.HttpContext?.User;
 			if (principal is not null && principal.Identity is not null && principal.Identity.IsAuthenticated)
 			{
@@ -103,14 +103,11 @@ public sealed class UserAccessor : IDisposable, IUserAccessor
 			}
 		}
 
-		if (!callFromMiddleware)
+		// try get user from authentication state provider.
+		var authenticationState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+		if (authenticationState.User.Identity?.IsAuthenticated == true)
 		{
-			// get user from authentication state provider; used in Interactive-mode.
-			var authenticationState = await _authenticationStateProvider.GetAuthenticationStateAsync();
-			if (authenticationState.User.Identity?.IsAuthenticated == true)
-			{
-				CurrentUser = LoadUser(authenticationState.User.Identity);
-			}
+			CurrentUser = LoadUser(authenticationState.User.Identity);
 		}
 	}
 

@@ -49,10 +49,8 @@
 
     protected string? SelectedUser { get; private set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await base.OnInitializedAsync();
-
         Roles = PermissionConfiguration.Roles;
         Users = UserLookupService.GetUsers()?
                     .OrderBy(x => x.DisplayName);
