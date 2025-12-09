@@ -20,7 +20,7 @@ public class UserContextInitializer(
 	/// <returns></returns>
 	public async Task InvokeAsync(HttpContext context, RequestDelegate next)
 	{
-		await InitializeAsync();
+		await InitializeAsync(callFromMiddleware: true);
 
 		await next(context);
 	}
@@ -30,11 +30,11 @@ public class UserContextInitializer(
 	/// </summary>
 	/// <param name="forceReload"></param>
 	/// <returns></returns>
-	public async Task InitializeAsync(bool forceReload = false)
+	public async Task InitializeAsync(bool forceReload = false, bool callFromMiddleware = false)
 	{
 		if (userAccessor.CurrentUser != null && !forceReload) return;
 
-		await userAccessor.TryLoadUserAsync(forceReload, true);
+		await userAccessor.TryLoadUserAsync(forceReload, callFromMiddleware);
 
 		if (userAccessor.CurrentUser is { } user)
 		{

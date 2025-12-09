@@ -2,8 +2,6 @@
 
 @inherits LayoutComponentBase
 
-@inject UserContextInitializer UserContextInitializer
-
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -25,18 +23,3 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
-
-@code {
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            // Load user context including permissions
-            await UserContextInitializer.InitializeAsync();
-
-            StateHasChanged(); // Refresh UI.
-        }
-    }
-
-}

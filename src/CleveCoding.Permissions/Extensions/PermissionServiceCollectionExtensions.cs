@@ -1,10 +1,12 @@
 ﻿using CleveCoding.Permissions.Behaviors;
+using CleveCoding.Permissions.Circuits;
 using CleveCoding.Permissions.Configurations;
 using CleveCoding.Permissions.Middleware;
 using CleveCoding.Permissions.Models;
 using CleveCoding.Permissions.Persistance;
 using CleveCoding.Permissions.Services;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -41,6 +43,9 @@ public static class PermissionServiceCollectionExtensions
 		// to populate the UserAccount with its permissions.
 		services.AddTransient<UserContextInitializer>();
 		services.AddTransient<ForbiddenExceptionHandler>();
+
+		// register circuit handlers that handle the transition between prerender and interactive mode.
+		services.AddScoped<CircuitHandler, UserCircuitHandler>();
 
 		// register the MediatR permissions checks.
 		services.AddMediatR(cfg =>

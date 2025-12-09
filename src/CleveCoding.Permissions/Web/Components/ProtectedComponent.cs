@@ -37,15 +37,16 @@ public abstract class ProtectedComponentBase : ComponentBase
 	[Inject]
 	public IUserAccessor UserAccessor { get; set; } = default!;
 
-	protected override void OnInitialized()
+	protected override async Task OnInitializedAsync()
 	{
+		await base.OnInitializedAsync();
+
 		var user = UserAccessor.CurrentUser
 			?? throw new ForbiddenException("Unauthorized user access - unkown user.");
 
 		// skip check if the user is admin.
 		if (UserAccessor.IsAdmin(user!))
 		{
-			base.OnInitialized();
 			return;
 		}
 
@@ -68,7 +69,5 @@ public abstract class ProtectedComponentBase : ComponentBase
 		{
 			throw new ForbiddenException();
 		}
-
-		base.OnInitialized();
 	}
 }

@@ -73,11 +73,7 @@ public sealed class UserAccessor : IDisposable, IUserAccessor
 		_authenticationStateProvider = authenticationStateProvider;
 		_applicationState = applicationState;
 		_configurations = configurations;
-		_subscription = applicationState.RegisterOnPersisting(() =>
-		{
-			_applicationState.PersistAsJson(nameof(CurrentUser), CurrentUser);
-			return Task.CompletedTask;
-		});
+		_subscription = applicationState.RegisterOnPersisting(PersistAsync);
 	}
 
 	/// <inheritdoc/>
@@ -109,7 +105,7 @@ public sealed class UserAccessor : IDisposable, IUserAccessor
 
 		if (!callFromMiddleware)
 		{
-			// get user from authentication state provider
+			// get user from authentication state provider; used in Interactive-mode.
 			var authenticationState = await _authenticationStateProvider.GetAuthenticationStateAsync();
 			if (authenticationState.User.Identity?.IsAuthenticated == true)
 			{
@@ -187,6 +183,18 @@ public sealed class UserAccessor : IDisposable, IUserAccessor
 		return user.GetGroups()
 			.OfType<GroupPrincipal>()
 			.Any(g => _configurations.AdminRoles.Contains(g.Name, StringComparer.OrdinalIgnoreCase));
+	}
+
+	private Task PersistAsync()
+	{
+		if (_applicationState is null || CurrentUser is null)
+		{
+			return Task.CompletedTask;
+		}
+
+		_applicationState.PersistAsJson(nameof(CurrentUser), CurrentUser);
+
+		return Task.CompletedTask;
 	}
 
 	public void Dispose()
