@@ -4,6 +4,15 @@ using MediatR;
 
 namespace CleveCoding.Permissions.Behaviors;
 
+/// <summary>
+/// Behavior used by MediatR to check if every requests is permited.
+/// 
+/// @ForbiddenException
+///		Gets handled by CleveCoding.Permissions.Middleware.ForbiddenExceptionHandler<TRequest, TResponse, TException>
+/// </summary>
+/// <typeparam name="TRequest"></typeparam>
+/// <typeparam name="TResponse"></typeparam>
+/// <param name="accessor"></param>
 public class VerifyPermissionBehavior<TRequest, TResponse>(IUserAccessor accessor)
 	: IPipelineBehavior<TRequest, TResponse>
 		where TRequest : IRequirePermission

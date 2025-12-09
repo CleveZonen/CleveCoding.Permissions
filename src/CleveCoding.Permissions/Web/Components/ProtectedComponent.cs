@@ -7,6 +7,9 @@ namespace CleveCoding.Permissions.Web.Components;
 /// <summary>
 /// Protected component secured with permissions. 
 /// Throws ForbiddenException if access is denied.
+/// 
+/// @ForbiddenException
+///		Gets handled by CleveCoding.Permissions.Middleware.ForbiddenExceptionHandler
 /// </summary>
 public abstract class ProtectedComponent : ComponentBase
 {
