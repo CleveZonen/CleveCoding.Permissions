@@ -25,10 +25,16 @@ public class ProtectedArea : ComponentBase
 	public UserActionType Action { get; set; }
 
 	/// <summary>
-	/// Child content to render when authorized.
+	/// Content to render when authorized.
 	/// </summary>
 	[Parameter]
 	public RenderFragment? ChildContent { get; set; }
+
+	/// <summary>
+	/// Content to render when not authorized.
+	/// </summary>
+	[Parameter]
+	public RenderFragment? NotAuthorized { get; set; }
 
 	protected bool IsAuthorized { get; set; }
 
@@ -50,6 +56,12 @@ public class ProtectedArea : ComponentBase
 		if (IsAuthorized)
 		{
 			builder.AddContent(0, ChildContent);
+			return;
+		}
+
+		if (NotAuthorized != null)
+		{
+			builder.AddContent(0, NotAuthorized);
 		}
 	}
 }

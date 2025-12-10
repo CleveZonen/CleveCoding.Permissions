@@ -6,8 +6,7 @@
 
 @rendermode InteractiveServer
 @attribute [StreamRendering]
-
-@inherits ProtectedComponent
+@attribute [RequirePermission("Items", UserActionType.ViewDetails)]
 
 @inject PermissionConfigurations PermissionConfiguration
 @inject IEnumerable<PermissionDescription> PermissionDescriptions
