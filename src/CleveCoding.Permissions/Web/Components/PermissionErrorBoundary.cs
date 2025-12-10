@@ -27,7 +27,6 @@ public class PermissionErrorBoundary : ErrorBoundary
 	{
 		if (CurrentException is ForbiddenException forbidden)
 		{
-			// Render fallback UI
 			builder.OpenElement(1, "div");
 			builder.AddAttribute(2, "class", "alert alert-danger");
 
@@ -39,8 +38,14 @@ public class PermissionErrorBoundary : ErrorBoundary
 			builder.AddContent(6, forbidden.Message);
 			builder.CloseElement();
 
+			if (!string.IsNullOrWhiteSpace(forbidden.Resource))
+			{
+				builder.OpenElement(7, "span");
+				builder.AddContent(8, $"Resource: {forbidden.Resource} -- Action: {forbidden.Action}");
+				builder.CloseElement();
+			}
+
 			builder.CloseElement();
-			return;
 		}
 		else
 		{

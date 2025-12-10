@@ -1,12 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 
 <CascadingAuthenticationState>
-    <PermissionErrorBoundary>
-        <Router AppAssembly="typeof(Program).Assembly">
-            <Found Context="routeData">
-                <PermissionRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)" />
-                <FocusOnNavigate RouteData="routeData" Selector="h1" />
-            </Found>
-        </Router>
-    </PermissionErrorBoundary>
+    <Router AppAssembly="@typeof(Program).Assembly">
+        <Found Context="routeData">
+            <PermissionRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)" />
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+    </Router>
 </CascadingAuthenticationState>

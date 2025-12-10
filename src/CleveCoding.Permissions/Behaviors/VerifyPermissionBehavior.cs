@@ -22,7 +22,11 @@ public class VerifyPermissionBehavior<TRequest, TResponse>(IPermissionEvaluator 
 	{
 		if (!permissionEvaluator.HasPermission(request.RequiredPermission))
 		{
-			throw new ForbiddenException();
+			throw new ForbiddenException()
+			{
+				Resource = request.RequiredPermission.Resource,
+				Action = request.RequiredPermission.Action
+			};
 		}
 
 		return await next(cancellationToken);

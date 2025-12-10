@@ -31,7 +31,11 @@ public class PermissionEvaluator(IUserAccessor accessor) : IPermissionEvaluator
 	public bool HasPermission(PermissionDescription permissionDescription)
 	{
 		var user = accessor.CurrentUser
-			?? throw new ForbiddenException("Unauthorized user access - unkown user.");
+			?? throw new ForbiddenException("Unauthorized user access - unkown user.")
+			{
+				Resource = permissionDescription.Resource,
+				Action = permissionDescription.Action
+			};
 
 		// skip check if the user is admin.
 		if (accessor.IsAdmin(user))
