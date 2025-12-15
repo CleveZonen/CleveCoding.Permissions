@@ -65,6 +65,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 await app.UsePermissions();
 
+// Load additional razor pages.
 app.MapRazorComponents<App>()
 	.AddInteractiveServerRenderMode()
 	.AddAdditionalAssemblies([typeof(ForbiddenPage).Assembly]);
