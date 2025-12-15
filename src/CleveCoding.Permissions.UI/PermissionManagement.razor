@@ -1,5 +1,6 @@
 ﻿@using CleveCoding.Kernel.Extensions
 @using CleveCoding.Permissions.Configurations
+@using CleveCoding.Permissions.Exceptions
 @using CleveCoding.Permissions.Models
 @using CleveCoding.Permissions.Services
 @using System.DirectoryServices.AccountManagement
@@ -11,6 +12,7 @@
 @inject IEnumerable<PermissionDescription> PermissionDescriptions
 @inject IUserLookupService UserLookupService
 @inject IPermissionService PermissionService
+@inject IUserAccessor UserAccessor
 
 <h1>Permissions Management</h1>
 <p>Manage the access to resources on user- or role level.</p>
@@ -129,6 +131,13 @@
 
     protected override void OnInitialized()
     {
+        if (UserAccessor.CurrentUser is null || !UserAccessor.IsAdmin(UserAccessor.CurrentUser))
+        {
+            // the permission management component
+            // is hard secured for admins-only use.
+            throw new ForbiddenException();
+        }
+
         Roles = PermissionConfiguration.Roles.Except(PermissionConfiguration.AdminRoles);
         Users = UserLookupService.GetUsers()?
                     .OrderBy(x => x.DisplayName);
