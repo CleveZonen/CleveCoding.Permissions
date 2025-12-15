@@ -45,7 +45,7 @@ public class PermissionRouteView : RouteView
 
 		if (!hasAccess)
 		{
-			NavigationManager.NavigateTo(PermissionConfigurations.ErrorPageUrl ?? "/errors/forbidden", true);
+			NavigationManager.NavigateTo(PermissionConfigurations.ErrorPageUrl, true);
 			return;
 		}
 

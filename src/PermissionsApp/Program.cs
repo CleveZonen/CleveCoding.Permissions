@@ -41,7 +41,6 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddPermissions<GetItemsForIndexRequest>(config =>
 {
 	config.ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
-	config.ErrorPageUrl = "/errors/forbidden";
 	config.AdminRoles = ["HRM-Role-Administrators", "HRM-Role-Development"];
 	config.Roles = ["HRM-Role-Administrators", "HRM-Role-Development", "HRM-Role-Secretary", "HRM-Role-Users"];
 });
