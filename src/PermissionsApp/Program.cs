@@ -1,6 +1,7 @@
 using System.Runtime.Versioning;
 using CleveCoding.Kernel.Cryptography;
 using CleveCoding.Permissions.Extensions;
+using CleveCoding.Permissions.UI;
 using CleveCoding.PermissionsApp.Components;
 using CleveCoding.PermissionsApp.Features.Item;
 using Microsoft.AspNetCore.Authentication.Negotiate;
@@ -42,7 +43,7 @@ builder.Services.AddPermissions<GetItemsForIndexRequest>(config =>
 	config.ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
 	config.ErrorPageUrl = "/errors/forbidden";
 	config.AdminRoles = ["HRM-Role-Administrators", "HRM-Role-Development"];
-	config.Roles = ["HRM-Role-Administrators", "HRM-Role-Development", "HRM-Role-Secretary"];
+	config.Roles = ["HRM-Role-Administrators", "HRM-Role-Development", "HRM-Role-Secretary", "HRM-Role-Users"];
 });
 
 var app = builder.Build();
@@ -65,6 +66,7 @@ app.UseAuthorization();
 await app.UsePermissions();
 
 app.MapRazorComponents<App>()
-	.AddInteractiveServerRenderMode();
+	.AddInteractiveServerRenderMode()
+	.AddAdditionalAssemblies([typeof(ForbiddenPage).Assembly]);
 
 app.Run();

@@ -20,8 +20,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="ForbiddenPage.razor">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="PermissionManagement.razor.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

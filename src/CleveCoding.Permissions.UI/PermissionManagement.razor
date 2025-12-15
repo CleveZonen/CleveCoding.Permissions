@@ -3,7 +3,6 @@
 @using CleveCoding.Permissions.Models
 @using CleveCoding.Permissions.Services
 @using System.DirectoryServices.AccountManagement
-@using Microsoft.JSInterop
 
 @rendermode InteractiveServer
 @attribute [StreamRendering]
@@ -12,54 +11,82 @@
 @inject IEnumerable<PermissionDescription> PermissionDescriptions
 @inject IUserLookupService UserLookupService
 @inject IPermissionService PermissionService
-@inject IJSRuntime JSRuntime
 
 <h1>Permissions Management</h1>
 <p>Manage the access to resources on user- or role level.</p>
 
 <div class="btn-group mb-1" role="group" aria-label="View Mode">
-    <button type="button" class="btn btn-primary">Users</button>
-    <button type="button" class="btn btn-primary">Roles</button>
-    <button type="button" class="btn btn-secondary">Audits</button>
+    <button type="button" class="btn btn-primary" @onclick="e => ChangeMode(ViewMode.Users)">Users</button>
+    <button type="button" class="btn btn-primary" @onclick="e => ChangeMode(ViewMode.Roles)">Roles</button>
+    <button type="button" class="btn btn-secondary" @onclick="e => ChangeMode(ViewMode.Audits)">Audits</button>
 </div>
 
 <div class="row mb-3">
-    <div class="col-3 bg-light rounded py-2">
-        <h2>Users <small>(@(Users?.Count() ?? 0))</small></h2>
-        <div class="form-field mb-1">
-            <input type="text" class="form-control form-control-solid" @bind-value="_filter" @bind-value:event="oninput" placeholder="Filter by name.." />
+    @if (_currentView != ViewMode.Audits)
+    {
+        <div class="col-3 bg-light rounded py-2">
+            <h2>@_currentView</h2>
+            <div class="form-field mb-1">
+                <input type="text" class="form-control form-control-solid" @bind-value="_filter" @bind-value:event="oninput" placeholder="Filter by name.." />
+            </div>
+            <div class="optionslist d-flex flex-column vh-100 overflow-auto">
+                @switch (_currentView)
+                {
+                    default:
+                    case ViewMode.Users:
+                        <UsersView Datasource="UsersDatasource" OnUserChange="ChangeUser" SelectedCssClass="GetSelectedCssClass" />
+                        break;
+                    case ViewMode.Roles:
+                        <RolesView Datasource="RolesDatasource" OnRoleChange="ChangeRole" SelectedCssClass="GetSelectedCssClass" />
+                        break;
+                }
+            </div>
         </div>
-        <div class="optionslist d-flex flex-column vh-100 overflow-auto">
-            <UsersView Datasource="UsersDatasource" OnUserChange="ChangeUser" SelectedCssClass="GetSelectedCssClass" />
-        </div>
-    </div>
-    <div class="col">
-        <h2>Permissions</h2>
-        @if (SelectedUser is not null)
-        {
-            <p>Manage the permissions for <strong>@SelectedUser?.DisplayName</strong>.</p>
-        }
-        else
-        {
-            <p>Select user to start.</p>
-        }
+        <div class="col">
+            <h2>Permissions</h2>
+            @if (SelectedUser is null && SelectedRole is null)
+            {
+                <p>Make an selection to start.</p>
+            }
+            else
+            {
+                <p>Manage the permissions for <strong>@(SelectedUser?.DisplayName ?? SelectedRole)</strong>.</p>
+            }
 
-        <PermissionsView Title="Data"
-                         Headers="@_headers.Where(x => x.EqualsGroup(UserActionType.ViewIndex))"
-                         Permissions="@_selectedPermissions.Select(x => x.CopyFor("Data"))"
-                         OnChanged="OnPermissionChanged" />
-        <PermissionsView Title="I/O"
-                         Headers="@_headers.Where(x => x.EqualsGroup(UserActionType.Download))"
-                         Permissions="@_selectedPermissions.Select(x => x.CopyFor("I/O"))"
-                         OnChanged="OnPermissionChanged" />
-        <PermissionsView Title="Reviews"
-                         Headers="@_headers.Where(x => x.EqualsGroup(UserActionType.Assign))"
-                         Permissions="@_selectedPermissions.Select(x => x.CopyFor("Reviews"))"
-                         OnChanged="OnPermissionChanged" />
-    </div>
+            <PermissionsView Group="Data"
+                             Headers="_headers.Where(x => x.EqualsGroup(UserActionType.ViewIndex))"
+                             Datasource="_selectedPermissions"
+                             OnChanged="OnPermissionChanged" />
+            <PermissionsView Group="I/O"
+                             Headers="_headers.Where(x => x.EqualsGroup(UserActionType.Download))"
+                             Datasource="_selectedPermissions"
+                             OnChanged="OnPermissionChanged" />
+            <PermissionsView Group="Reviews"
+                             Headers="_headers.Where(x => x.EqualsGroup(UserActionType.Assign))"
+                             Datasource="_selectedPermissions"
+                             OnChanged="OnPermissionChanged" />
+        </div>
+    }
+    else
+    {
+        <div class="col bg-light rounded">
+            <h2>@_currentView</h2>
+            <div class="form-field mb-1">
+                <input type="text" class="form-control form-control-solid" @bind-value="_filter" @bind-value:event="oninput" placeholder="Filter by UserId or RoleId.." />
+            </div>
+
+        </div>
+    }
 </div>
 
 @code {
+
+    enum ViewMode
+    {
+        Users = 0,
+        Roles = 1,
+        Audits = 2
+    }
 
     /// <summary>
     /// Roles for permissions.
@@ -79,18 +106,30 @@
                                                                 : Users;
 
     /// <summary>
+    /// The roles datasource with the filter applied.
+    /// </summary>
+    protected IEnumerable<string>? RolesDatasource => !string.IsNullOrWhiteSpace(_filter)
+                                                                ? Roles?.Where(x => x.Contains(_filter, StringComparison.CurrentCultureIgnoreCase))
+                                                                : Roles;
+
+    /// <summary>
     /// The selected user in the Users-screen.
     /// </summary>
     protected UserPrincipal? SelectedUser { get; private set; }
 
+    /// <summary>
+    /// The selected role in the Roles-screen.
+    /// </summary>
+    protected string? SelectedRole { get; private set; }
+
     private string? _filter;
-    private bool _hasChanged;
+    private ViewMode _currentView;
     private IEnumerable<UserActionType> _headers = [];
     private IEnumerable<PermissionSet> _selectedPermissions = [];
 
     protected override void OnInitialized()
     {
-        Roles = PermissionConfiguration.Roles;
+        Roles = PermissionConfiguration.Roles.Except(PermissionConfiguration.AdminRoles);
         Users = UserLookupService.GetUsers()?
                     .OrderBy(x => x.DisplayName);
     }
@@ -105,21 +144,54 @@
 
         permission.HasAccess = newValue;
 
-        // mark an permission change.
-        _hasChanged = true;
+        // todo: save permission to db.
+    }
+
+    private async Task ChangeRole(string role)
+    {
+        SelectedRole = role;
+
+        var registeredPermissions = PermissionDescriptions.Select(x => new UserPermission
+        {
+            RoleId = role,
+            Resource = x.Resource,
+            Action = x.Action
+        });
+
+        _headers = registeredPermissions.Select(x => x.Action).Distinct().OrderBy(x => (int)x);
+        _selectedPermissions = registeredPermissions
+                                    .GroupBy(x => x.Resource)
+                                    .Select(x => new PermissionSet
+                                    {
+                                        Resource = x.Key,
+                                        Permissions = x
+                                    }).ToList();
+
+        var rolePermissions = await PermissionService.GetRolePermissionsAsync(SelectedRole);
+        if (rolePermissions is null || !rolePermissions.Any())
+        {
+            StateHasChanged();
+            return;
+        }
+
+        foreach (var permission in rolePermissions)
+        {
+            var foundPermission = _selectedPermissions.SelectMany(x => x.Permissions)
+                                                        .FirstOrDefault(x => x.Resource.Equals(permission.Resource, StringComparison.CurrentCultureIgnoreCase) &&
+                                                                                x.Action == permission.Action);
+            if (foundPermission is null)
+            {
+                continue;
+            }
+
+            foundPermission.HasAccess = permission.HasAccess;
+        }
+
+        StateHasChanged();
     }
 
     private async Task ChangeUser(UserPrincipal user)
     {
-        // if user has changed,
-        // but there are permission changes,
-        // inform the user about the unsaved permission changes.
-        if (_hasChanged && user != SelectedUser && !(await JSRuntime.InvokeAsync<bool>("confirm", "There are unsaved changes. Do you wish to proceed without saving?")))
-        {
-            return;
-        }
-
-        _hasChanged = false;
         SelectedUser = user;
 
         var registeredPermissions = PermissionDescriptions.Select(x => new UserPermission
@@ -138,29 +210,45 @@
                                         Permissions = x
                                     }).ToList();
 
-        var userPermissions = await PermissionService.GetUserPermissionsAsync(user.SamAccountName);
+        var userPermissions = await PermissionService.GetUserPermissionsAsync(SelectedUser.SamAccountName);
         if (userPermissions is null || !userPermissions.Any())
         {
             StateHasChanged();
             return;
         }
 
-        foreach (var userPermission in userPermissions)
+        foreach (var permission in userPermissions)
         {
             var foundPermission = _selectedPermissions.SelectMany(x => x.Permissions)
-                                                        .FirstOrDefault(x => x.Resource.Equals(userPermission.Resource, StringComparison.CurrentCultureIgnoreCase) && x.Action == userPermission.Action);
+                                                        .FirstOrDefault(x => x.Resource.Equals(permission.Resource, StringComparison.CurrentCultureIgnoreCase) &&
+                                                                                x.Action == permission.Action);
             if (foundPermission is null)
             {
                 continue;
             }
 
-            foundPermission.HasAccess = userPermission.HasAccess;
+            foundPermission.HasAccess = permission.HasAccess;
         }
 
         StateHasChanged();
     }
 
+    private void ChangeMode(ViewMode view)
+    {
+        _currentView = view;
+
+        // reset.
+        _headers = [];
+        _selectedPermissions = [];
+        _filter = null;
+        SelectedUser = null;
+        SelectedRole = null;
+    }
+
     private string GetSelectedCssClass(UserPrincipal user)
         => SelectedUser?.Equals(user) == true ? "selected" : "";
+
+    private string GetSelectedCssClass(string role)
+        => SelectedRole?.Equals(role) == true ? "selected" : "";
 
 }

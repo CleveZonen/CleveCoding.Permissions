@@ -5,9 +5,9 @@
 
 @if (Permissions.Any(x => x.Permissions.Any()))
 {
-    @if (!string.IsNullOrWhiteSpace(Title))
+    @if (!string.IsNullOrWhiteSpace(Group))
     {
-        <h3 class="h4">@Title</h3>
+        <h3 class="h4">@Group</h3>
     }
     <table class="quickgrid table table-striped">
         <thead class="table-dark">
@@ -58,16 +58,18 @@
 @code {
 
     [Parameter]
-    public string? Title { get; set; }
+    public string? Group { get; set; }
 
     [Parameter, EditorRequired]
     public IEnumerable<UserActionType> Headers { get; set; } = [];
 
     [Parameter, EditorRequired]
-    public IEnumerable<PermissionSet> Permissions { get; set; } = [];
+    public IEnumerable<PermissionSet> Datasource { get; set; } = [];
 
     [Parameter, EditorRequired]
     public Action<ChangeEventArgs, UserPermission> OnChanged { get; set; } = null!;
+
+    protected IEnumerable<PermissionSet> Permissions => string.IsNullOrWhiteSpace(Group) ? Datasource : Datasource.Select(x => x.CopyFor(Group));
 
     private string? GetPermissionDescription(string resource, UserActionType action)
         => PermissionDescriptions.FirstOrDefault(x => x.Resource.Equals(resource, StringComparison.CurrentCultureIgnoreCase) && x.Action == action)?.Description;

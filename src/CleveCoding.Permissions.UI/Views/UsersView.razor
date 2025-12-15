@@ -1,5 +1,6 @@
 ﻿@using System.DirectoryServices.AccountManagement
 
+<small class="text-muted">Found @(Datasource?.Count() ?? 0) users.</small>
 <ol class="list-group list-group-numbered">
     @foreach (var user in Datasource ?? [])
     {
