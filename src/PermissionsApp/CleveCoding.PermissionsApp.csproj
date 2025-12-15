@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CleveCoding.Permissions\CleveCoding.Permissions.csproj" />
+    <ProjectReference Include="..\CleveCoding.Permissions.UI\CleveCoding.Permissions.UI.csproj" />
   </ItemGroup>
 
 </Project>

@@ -7,22 +7,22 @@ namespace CleveCoding.Permissions.Models;
 /// </summary>
 public enum UserActionType
 {
-	[Display(Name = "Overview", GroupName = "CRUD")]
+	[Display(Name = "Overview", GroupName = "Data")]
 	ViewIndex = 100,
 
-	[Display(Name = "Details", GroupName = "CRUD")]
+	[Display(Name = "Details", GroupName = "Data")]
 	ViewDetails = 110,
 
-	[Display(Name = "Create", GroupName = "CRUD")]
+	[Display(Name = "Create", GroupName = "Data")]
 	Create = 120,
 
-	[Display(Name = "Update", GroupName = "CRUD")]
+	[Display(Name = "Update", GroupName = "Data")]
 	Update = 130,
 
-	[Display(Name = "Toggle", GroupName = "CRUD")]
+	[Display(Name = "Toggle", GroupName = "Data")]
 	Toggle = 135,
 
-	[Display(Name = "Delete", GroupName = "CRUD")]
+	[Display(Name = "Delete", GroupName = "Data")]
 	Delete = 140,
 
 	[Display(Name = "Download", GroupName = "I/O")]
@@ -37,15 +37,15 @@ public enum UserActionType
 	[Display(Name = "Import", GroupName = "I/O")]
 	Import = 230,
 
-	[Display(Name = "Assign", GroupName = "REVIEWS")]
+	[Display(Name = "Assign", GroupName = "Reviews")]
 	Assign = 300,
 
-	[Display(Name = "Review", GroupName = "REVIEWS")]
+	[Display(Name = "Review", GroupName = "Reviews")]
 	Review = 310,
 
-	[Display(Name = "Approve", GroupName = "REVIEWS")]
+	[Display(Name = "Approve", GroupName = "Reviews")]
 	Approve = 320,
 
-	[Display(Name = "Reject", GroupName = "REVIEWS")]
+	[Display(Name = "Reject", GroupName = "Reviews")]
 	Reject = 330
 }

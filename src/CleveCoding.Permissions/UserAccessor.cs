@@ -115,9 +115,9 @@ public sealed class UserAccessor : IDisposable, IUserAccessor
 	public UserAccount LoadUser(IIdentity identity)
 	{
 		// reset current user.
-		var currentUser = new UserAccount();
+		var loadedAccount = new UserAccount();
 
-		if (identity.Name == null) return currentUser;
+		if (identity.Name == null) return loadedAccount;
 
 		// find the domain and username.
 		var identityArr = identity.Name.Split('\\');
@@ -125,13 +125,13 @@ public sealed class UserAccessor : IDisposable, IUserAccessor
 		if (identityArr.Length > 1)
 		{
 			domain = identityArr[0];
-			currentUser.AccountName = identityArr[1].ToUpper();
-			currentUser.UserName = identityArr[1];
+			loadedAccount.AccountName = identityArr[1].ToUpper();
+			loadedAccount.UserName = identityArr[1];
 		}
 		else
 		{
 			domain = Environment.UserDomainName;
-			currentUser.UserName = identityArr[0];
+			loadedAccount.UserName = identityArr[0];
 		}
 
 		// get the user information.
@@ -140,15 +140,15 @@ public sealed class UserAccessor : IDisposable, IUserAccessor
 			try
 			{
 				var userPrincipal = UserPrincipal.FindByIdentity(new(ContextType.Domain, domain), identity.Name!);
-				if (userPrincipal is null) return currentUser;
+				if (userPrincipal is null) return loadedAccount;
 
-				currentUser.FirstName = userPrincipal.GivenName;
-				currentUser.MiddleName = userPrincipal.MiddleName;
-				currentUser.LastName = userPrincipal.Surname;
-				currentUser.UserName = userPrincipal.DisplayName;
-				currentUser.Description = userPrincipal.Description;
-				currentUser.TelephoneNumber = userPrincipal.VoiceTelephoneNumber;
-				currentUser.EmailAddress = userPrincipal.EmailAddress;
+				loadedAccount.FirstName = userPrincipal.GivenName;
+				loadedAccount.MiddleName = userPrincipal.MiddleName;
+				loadedAccount.LastName = userPrincipal.Surname;
+				loadedAccount.UserName = userPrincipal.DisplayName;
+				loadedAccount.Description = userPrincipal.Description;
+				loadedAccount.TelephoneNumber = userPrincipal.VoiceTelephoneNumber;
+				loadedAccount.EmailAddress = userPrincipal.EmailAddress;
 			}
 			catch
 			{
@@ -157,15 +157,15 @@ public sealed class UserAccessor : IDisposable, IUserAccessor
 		}
 
 		// find the user roles.
-		if (identity is not WindowsIdentity windowsIdentity) return currentUser;
-		if (windowsIdentity.Groups is null) return currentUser;
+		if (identity is not WindowsIdentity windowsIdentity) return loadedAccount;
+		if (windowsIdentity.Groups is null) return loadedAccount;
 
-		currentUser.Roles = windowsIdentity.Groups
+		loadedAccount.Roles = windowsIdentity.Groups
 			.Select(x => x.Translate(typeof(NTAccount)).Value.Split('\\'))
 			.Where(x => x.Length > 1)
 			.Select(x => x[1]);
 
-		return currentUser;
+		return loadedAccount;
 	}
 
 	/// <inheritdoc/>

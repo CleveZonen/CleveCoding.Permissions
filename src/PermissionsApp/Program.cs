@@ -2,7 +2,7 @@ using System.Runtime.Versioning;
 using CleveCoding.Kernel.Cryptography;
 using CleveCoding.Permissions.Extensions;
 using CleveCoding.PermissionsApp.Components;
-using CleveCoding.PermissionsApp.Items;
+using CleveCoding.PermissionsApp.Features.Item;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.EntityFrameworkCore;
 

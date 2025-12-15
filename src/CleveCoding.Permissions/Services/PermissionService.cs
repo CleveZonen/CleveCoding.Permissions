@@ -9,11 +9,18 @@ namespace CleveCoding.Permissions.Services;
 public interface IPermissionService
 {
 	/// <summary>
-	/// Get the permissions for the given user.
+	/// Get the permissions for the given user, including role permissions.
 	/// </summary>
 	/// <param name="user"></param>
 	/// <returns></returns>
 	Task<IEnumerable<UserPermission>?> GetUserPermissionsAsync(IUserAccount user);
+
+	/// <summary>
+	/// Get the permissions for the given user.
+	/// </summary>
+	/// <param name="account"></param>
+	/// <returns></returns>
+	Task<IEnumerable<UserPermission>?> GetUserPermissionsAsync(string account);
 
 	/// <summary>
 	/// Get the permissions for the given role.
@@ -71,7 +78,7 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
 		var account = user.AccountName;
 
 		var perms = await Context.UserPermissions
-			.Where(p => p.UserId == account || (roles.Count() > 0 && roles.Contains(p.RoleId)))
+			.Where(p => p.UserId != null && p.UserId.ToUpper() == account.ToUpper() || (roles.Count() > 0 && roles.Contains(p.RoleId)))
 			.ToListAsync();
 
 		var effective = perms
@@ -90,6 +97,31 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
 			});
 
 		await PermissionCache.SetForUserAsync(user.AccountName, effective);
+
+		return effective;
+	}
+
+	/// <inheritdoc/>
+	public async Task<IEnumerable<UserPermission>?> GetUserPermissionsAsync(string account)
+	{
+		var perms = await Context.UserPermissions
+			.Where(p => p.UserId != null && p.UserId.ToUpper() == account.ToUpper())
+			.ToListAsync();
+
+		var effective = perms
+			.OrderByDescending(p => p.UserId != null) // user overrides role
+			.GroupBy(p => new { p.Resource, p.Action })
+			.Select(g => g.First())
+			.Select(x => new UserPermission
+			{
+				UserId = x.UserId,
+				RoleId = x.RoleId,
+				Action = x.Action,
+				Resource = x.Resource,
+				HasAccess = x.HasAccess,
+				CreatedAt = x.CreatedAt,
+				CreatedBy = x.CreatedBy
+			});
 
 		return effective;
 	}

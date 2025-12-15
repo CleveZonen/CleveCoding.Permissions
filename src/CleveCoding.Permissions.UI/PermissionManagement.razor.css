@@ -1,0 +1,48 @@
+﻿::deep .list-group.list-group-numbered li:hover {
+    background: #eee;
+    cursor: pointer;
+}
+
+::deep .list-group.list-group-numbered li.selected {
+    background: #cfe2ff;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+::deep .tooltip-icon {
+    background: #052c65;
+    border: 2px solid #cfe2ff;
+    border-radius: 50%;
+    display: inline-block;
+    vertical-align: super;
+    margin-left: 5px;
+    position: relative;
+    width: 21px;
+    height: 21px;
+    cursor: help;
+    text-align: center;
+    font-size: 12px;
+    color: #cfe2ff;
+}
+
+    ::deep .tooltip-icon::before {
+        content: 'i';
+        position: relative;
+    }
+
+    ::deep .tooltip-icon :first-child {
+        display: none;
+    }
+
+    ::deep .tooltip-icon:hover :first-child {
+        background: #cfe2ff;
+        border-radius: 3px;
+        position: absolute;
+        display: block;
+        padding: 10px;
+        width: fit-content;
+        left: 20px;
+        color: #052c65;
+    }
