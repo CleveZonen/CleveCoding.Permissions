@@ -9,6 +9,7 @@
 		<Description>Permissions Package for Cleve Projects.</Description>
 		<PackageProjectUrl>https://github.com/CleveZonen/CleveCoding.Permissions</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/CleveZonen/CleveCoding.Permissions</RepositoryUrl>
+		<Version>1.0.1</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
