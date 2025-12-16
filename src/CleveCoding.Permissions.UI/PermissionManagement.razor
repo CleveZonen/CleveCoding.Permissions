@@ -4,6 +4,7 @@
 @using CleveCoding.Permissions.Models
 @using CleveCoding.Permissions.Services
 @using System.DirectoryServices.AccountManagement
+@using Microsoft.AspNetCore.Components.QuickGrid
 
 @rendermode InteractiveServer
 @attribute [StreamRendering]
@@ -76,7 +77,22 @@
             <div class="form-field mb-1">
                 <input type="text" class="form-control form-control-solid" @bind-value="_filter" @bind-value:event="oninput" placeholder="Filter by UserId or RoleId.." />
             </div>
-
+            <div class="card mb-3">
+                <QuickGrid Items="AuditsDatasource?.AsQueryable()" Pagination="Pagination" Class="table table-striped">
+                    <TemplateColumn Title="Created on" Class="align-middle" SortBy="GridSort<UserPermissionAudit>.ByDescending(x => x.CreatedAt)">
+                        @context.CreatedAt.ToLocalFormat()
+                    </TemplateColumn>
+                    <PropertyColumn Title="Changed by" Class="align-middle" Property="@(p => p.CreatedBy)" Sortable="true" />
+                    <PropertyColumn Title="User" Class="align-middle" Property="@(p => p.UserId)" Sortable="true" />
+                    <PropertyColumn Title="Role" Class="align-middle" Property="@(p => p.RoleId)" Sortable="true" />
+                    <PropertyColumn Title="Resource" Class="align-middle" Property="@(p => p.Resource)" Sortable="true" />
+                    <PropertyColumn Title="Action" Class="align-middle" Property="@(p => p.Action)" Sortable="true" />
+                    <TemplateColumn Title="Change" Class="align-middle">
+                        @context.OldValue -> @(!context.OldValue)
+                    </TemplateColumn>
+                </QuickGrid>
+                <Paginator State="Pagination" />
+            </div>
         </div>
     }
 </div>
@@ -101,6 +117,11 @@
     protected IEnumerable<UserPrincipal>? Users { get; private set; }
 
     /// <summary>
+    /// Audits of permission changes.
+    /// </summary>
+    protected IEnumerable<UserPermissionAudit>? Audits { get; private set; }
+
+    /// <summary>
     /// The users datasource with the filter applied.
     /// </summary>
     protected IEnumerable<UserPrincipal>? UsersDatasource => !string.IsNullOrWhiteSpace(_filter)
@@ -115,6 +136,14 @@
                                                                 : Roles;
 
     /// <summary>
+    /// The audits datasource with the filter applied.
+    /// </summary>
+    protected IEnumerable<UserPermissionAudit>? AuditsDatasource => !string.IsNullOrWhiteSpace(_filter)
+                                                                ? Audits?.Where(x => (x.RoleId is not null && x.RoleId.Contains(_filter, StringComparison.CurrentCultureIgnoreCase))
+                                                                                || (x.UserId is not null && x.UserId.Contains(_filter, StringComparison.CurrentCultureIgnoreCase)))
+                                                                : Audits;
+
+    /// <summary>
     /// The selected user in the Users-screen.
     /// </summary>
     protected UserPrincipal? SelectedUser { get; private set; }
@@ -124,12 +153,14 @@
     /// </summary>
     protected string? SelectedRole { get; private set; }
 
+    protected PaginationState Pagination = new() { ItemsPerPage = 30 };
+
     private string? _filter;
     private ViewMode _currentView;
     private IEnumerable<UserActionType> _headers = [];
     private IEnumerable<PermissionSet> _selectedPermissions = [];
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         if (UserAccessor.CurrentUser is null || !UserAccessor.IsAdmin(UserAccessor.CurrentUser))
         {
@@ -139,8 +170,8 @@
         }
 
         Roles = PermissionConfiguration.Roles.Except(PermissionConfiguration.AdminRoles);
-        Users = UserLookupService.GetUsers()?
-                    .OrderBy(x => x.DisplayName);
+        Users = UserLookupService.GetUsers()?.OrderBy(x => x.DisplayName);
+        Audits = await PermissionService.GetAuditsAsync();
     }
 
     private void OnPermissionChanged(ChangeEventArgs args, UserPermission permission)
@@ -153,7 +184,14 @@
 
         permission.HasAccess = newValue;
 
-        // todo: save permission to db.
+        if (_currentView == ViewMode.Users)
+        {
+            // save the user permission change.
+        }
+        else
+        {
+            // save the role permission change.
+        }
     }
 
     private async Task ChangeRole(string role)

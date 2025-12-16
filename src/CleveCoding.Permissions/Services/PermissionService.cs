@@ -46,6 +46,13 @@ public interface IPermissionService
 	Task SetRolePermissionsAsync(UserPermission permission, bool newValue);
 
 	/// <summary>
+	/// Get the most recent permission audits.
+	/// </summary>
+	/// <param name="userId"></param>
+	/// <returns></returns>
+	Task<IEnumerable<UserPermissionAudit>?> GetAuditsAsync();
+
+	/// <summary>
 	/// Get the permission audits for the given user.
 	/// </summary>
 	/// <param name="userId"></param>
@@ -236,8 +243,6 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
 
 		// invalidate cache
 		await PermissionCache.InvalidateForUserAsync(userId);
-
-		return;
 	}
 
 	/// <inheritdoc/>
@@ -318,18 +323,37 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
 		{
 			await PermissionCache.InvalidateForUserAsync(user.SamAccountName);
 		}
+	}
 
-		return;
+	/// <inheritdoc/>
+	public async Task<IEnumerable<UserPermissionAudit>?> GetAuditsAsync()
+	{
+		return await Context.UserPermissionAudits
+			.OrderByDescending(x => x.CreatedAt)
+			.Take(1000)
+			.Select(x => new UserPermissionAudit
+			{
+				UserId = x.UserId,
+				RoleId = x.RoleId,
+				Resource = x.Resource,
+				Action = x.Action,
+				OldValue = x.OldValue,
+				CreatedAt = x.CreatedAt,
+				CreatedBy = x.CreatedBy,
+			})
+			.ToListAsync();
 	}
 
 	/// <inheritdoc/>
 	public async Task<IEnumerable<UserPermissionAudit>?> GetAuditsForUserAsync(string userId)
 	{
 		return await Context.UserPermissionAudits
-			.Where(x => x.UserId == userId)
+			.Where(x => x.UserId != null && x.UserId.ToUpper() == userId.ToUpper())
+			.OrderByDescending(x => x.CreatedAt)
+			.Take(1000)
 			.Select(x => new UserPermissionAudit
 			{
-				UserId = userId,
+				UserId = x.UserId,
 				RoleId = x.RoleId,
 				Resource = x.Resource,
 				Action = x.Action,
@@ -344,7 +368,9 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
 	public async Task<IEnumerable<UserPermissionAudit>?> GetAuditsForRoleAsync(string roleId)
 	{
 		return await Context.UserPermissionAudits
-			.Where(x => x.RoleId == roleId && x.UserId == null)
+			.Where(x => x.RoleId != null && x.RoleId.ToUpper() == roleId.ToUpper() && x.UserId == null)
+			.OrderByDescending(x => x.CreatedAt)
+			.Take(1000)
 			.Select(x => new UserPermissionAudit
 			{
 				RoleId = x.RoleId,

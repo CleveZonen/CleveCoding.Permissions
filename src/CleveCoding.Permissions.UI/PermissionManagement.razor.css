@@ -7,10 +7,6 @@
     background: #cfe2ff;
 }
 
-.table td {
-    vertical-align: middle;
-}
-
 ::deep .tooltip-icon {
     background: #052c65;
     border: 2px solid #cfe2ff;
@@ -46,3 +42,21 @@
         left: 20px;
         color: #052c65;
     }
+
+
+::deep .table td {
+    vertical-align: middle;
+}
+
+::deep .quickgrid tbody tr:not([aria-rowindex]) {
+    display: none !important;
+}
+
+::deep .quickgrid tbody td {
+    height: 1.5em !important;
+    padding: .5rem .5rem !important;
+}
+
+::deep .paginator .summary {
+    padding-left: 10px;
+}
