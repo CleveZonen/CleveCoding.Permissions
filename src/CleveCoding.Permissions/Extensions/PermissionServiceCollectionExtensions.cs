@@ -14,7 +14,14 @@ namespace CleveCoding.Permissions.Extensions;
 
 public static class PermissionServiceCollectionExtensions
 {
-	public static void AddPermissions<T>(this IServiceCollection services, Action<PermissionConfigurations> configuration)
+	/// <summary>
+	/// Wires up all the nessary services for the Permissions Package.
+	/// </summary>
+	/// <typeparam name="T">Used for MediatR to Register Services from Assembly and scan for PermissionDescription's.</typeparam>
+	/// <param name="services"></param>
+	/// <param name="configuration">Configurations for the Permissions.</param>
+	/// <param name="mediatRConfiguration">When provided, registers into MediatR with AddMediatR()-call.</param>
+	public static void AddPermissions<T>(this IServiceCollection services, Action<PermissionConfigurations> configuration, MediatRServiceConfiguration? mediatRConfiguration = null)
 		where T : IRequirePermission
 	{
 		var permissionConfigurations = new PermissionConfigurations();
@@ -49,11 +56,20 @@ public static class PermissionServiceCollectionExtensions
 		services.AddScoped<CircuitHandler, UserCircuitHandler>();
 
 		// register the MediatR permissions checks.
-		services.AddMediatR(cfg =>
+		if (mediatRConfiguration is not null)
 		{
-			cfg.RegisterServicesFromAssembly(typeof(T).Assembly);
-			cfg.AddOpenBehavior(typeof(VerifyPermissionBehavior<,>));
-		});
+			mediatRConfiguration.RegisterServicesFromAssembly(typeof(T).Assembly);
+			mediatRConfiguration.AddOpenBehavior(typeof(VerifyPermissionBehavior<,>));
+			services.AddMediatR(mediatRConfiguration);
+		}
+		else
+		{
+			services.AddMediatR(cfg =>
+			{
+				cfg.RegisterServicesFromAssembly(typeof(T).Assembly);
+				cfg.AddOpenBehavior(typeof(VerifyPermissionBehavior<,>));
+			});
+		}
 
 		// scan for IRequirePermission to collect PermissionDescription
 		// and register it in services as IEnumerable
