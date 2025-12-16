@@ -26,7 +26,8 @@
 <div class="row mb-3">
     <div class="col-3 bg-light rounded py-2">
         <h2>@_currentView</h2>
-        <div class="form-field mb-2">
+        <div class="form-field mb-2 position-relative">
+            <span class="clear-filter" title="Clear the filter." @onclick="e => _filter = null">X</span>
             <input type="text" class="form-control form-control-solid" @bind-value="_filter" @bind-value:event="oninput" placeholder="Filter by name.." />
         </div>
         <div class="optionslist d-flex flex-column vh-100 overflow-auto">
@@ -34,10 +35,10 @@
             {
                 default:
                 case ViewMode.Users:
-                    <UsersView Datasource="UsersDatasource" OnUserChange="ChangeUser" SelectedCssClass="GetSelectedCssClass" />
+                    <UsersView Datasource="UsersDatasource" OnUserChange="ChangeUserAsync" SelectedCssClass="GetSelectedCssClass" />
                     break;
                 case ViewMode.Roles:
-                    <RolesView Datasource="RolesDatasource" OnRoleChange="ChangeRole" SelectedCssClass="GetSelectedCssClass" />
+                    <RolesView Datasource="RolesDatasource" OnRoleChange="ChangeRoleAsync" SelectedCssClass="GetSelectedCssClass" />
                     break;
             }
         </div>
@@ -55,15 +56,15 @@
         <PermissionsView Group="Data"
                          Headers="_headers.Where(x => x.EqualsGroup(UserActionType.ViewIndex))"
                          Datasource="_selectedPermissions"
-                         OnChanged="OnPermissionChanged" />
+                         OnChanged="OnPermissionChangedAsync" />
         <PermissionsView Group="I/O"
                          Headers="_headers.Where(x => x.EqualsGroup(UserActionType.Download))"
                          Datasource="_selectedPermissions"
-                         OnChanged="OnPermissionChanged" />
+                         OnChanged="OnPermissionChangedAsync" />
         <PermissionsView Group="Reviews"
                          Headers="_headers.Where(x => x.EqualsGroup(UserActionType.Assign))"
                          Datasource="_selectedPermissions"
-                         OnChanged="OnPermissionChanged" />
+                         OnChanged="OnPermissionChangedAsync" />
     </div>
     @if (Audits is not null && Audits.Any())
     {
@@ -78,6 +79,12 @@
 </div>
 
 @code {
+
+    [Parameter]
+    public EventCallback<bool> OnSaved { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnError { get; set; }
 
     enum ViewMode
     {
@@ -143,7 +150,7 @@
         Users = UserLookupService.GetUsers()?.OrderBy(x => x.DisplayName);
     }
 
-    private void OnPermissionChanged(ChangeEventArgs args, UserPermission permission)
+    private async Task OnPermissionChangedAsync(ChangeEventArgs args, UserPermission permission)
     {
         var newValue = (bool)args.Value!;
         if (permission.HasAccess == newValue)
@@ -153,17 +160,32 @@
 
         permission.HasAccess = newValue;
 
-        if (_currentView == ViewMode.Users)
+        try
         {
-            // save the user permission change.
+            if (_currentView == ViewMode.Users)
+            {
+                // save the user permission change.
+                await PermissionService.SetUserPermissionsAsync(permission, newValue);
+                Audits = await PermissionService.GetAuditsForUserAsync(permission.UserId!);
+            }
+            else
+            {
+                // save the role permission change.
+                await PermissionService.SetRolePermissionsAsync(permission, newValue);
+                Audits = await PermissionService.GetAuditsForRoleAsync(permission.RoleId!);
+            }
+
+            await OnSaved.InvokeAsync(true);
+
+            StateHasChanged();
         }
-        else
+        catch (Exception ex)
         {
-            // save the role permission change.
+            await OnError.InvokeAsync(ex.Message);
         }
     }
 
-    private async Task ChangeRole(string role)
+    private async Task ChangeRoleAsync(string role)
     {
         SelectedRole = role;
         Audits = await PermissionService.GetAuditsForRoleAsync(SelectedRole);
@@ -207,7 +229,7 @@
         StateHasChanged();
     }
 
-    private async Task ChangeUser(UserPrincipal user)
+    private async Task ChangeUserAsync(UserPrincipal user)
     {
         SelectedUser = user;
         Audits = await PermissionService.GetAuditsForUserAsync(SelectedUser.SamAccountName);

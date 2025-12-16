@@ -78,7 +78,7 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
 		var account = user.AccountName;
 
 		var perms = await Context.UserPermissions
-			.Where(p => p.UserId != null && p.UserId.ToUpper() == account.ToUpper() || (roles.Count() > 0 && roles.Contains(p.RoleId)))
+			.Where(p => p.UserId == account || (roles.Count() > 0 && roles.Contains(p.RoleId)))
 			.ToListAsync();
 
 		var effective = perms
@@ -105,7 +105,7 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
 	public async Task<IEnumerable<UserPermission>?> GetUserPermissionsAsync(string account)
 	{
 		var perms = await Context.UserPermissions
-			.Where(p => p.UserId != null && p.UserId.ToUpper() == account.ToUpper())
+			.Where(p => p.UserId == account)
 			.ToListAsync();
 
 		var effective = perms
@@ -196,7 +196,7 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
 				UserId = userId,
 				Resource = permission.Resource,
 				Action = permission.Action,
-				OldValue = false,
+				OldValue = !newValue,
 				CreatedAt = now,
 				CreatedBy = actor
 			});
@@ -205,7 +205,7 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
 			await transaction.CommitAsync();
 		}
 		// change permission.
-		else if (existing.HasAccess != newValue)
+		else
 		{
 			Context.UserPermissions.Remove(existing);
 
@@ -322,9 +322,10 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
 	public async Task<IEnumerable<UserPermissionAudit>?> GetAuditsForUserAsync(string userId)
 	{
 		return await Context.UserPermissionAudits
-			.Where(x => x.UserId != null && x.UserId.ToUpper() == userId.ToUpper())
+			.Where(x => x.UserId != null && x.UserId.Trim() == userId.Trim())
 			.OrderByDescending(x => x.CreatedAt)
 			.Take(1000)
+			.AsNoTracking()
 			.Select(x => new UserPermissionAudit
 			{
 				UserId = x.UserId,
@@ -342,9 +343,10 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
 	public async Task<IEnumerable<UserPermissionAudit>?> GetAuditsForRoleAsync(string roleId)
 	{
 		return await Context.UserPermissionAudits
-			.Where(x => x.RoleId != null && x.RoleId.ToUpper() == roleId.ToUpper() && x.UserId == null)
+			.Where(x => x.RoleId == roleId && x.UserId == null)
 			.OrderByDescending(x => x.CreatedAt)
 			.Take(1000)
+			.AsNoTracking()
 			.Select(x => new UserPermissionAudit
 			{
 				RoleId = x.RoleId,

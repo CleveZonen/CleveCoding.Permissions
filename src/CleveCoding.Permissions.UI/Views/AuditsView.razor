@@ -17,7 +17,7 @@
                             <span class="ms-1">- @audit.CreatedBy</span>
                         </div>
                         <div class="bg-white p-1 px-2 rounded border-@(isRevoked ? "danger" : "success") border-3 border-start">
-                            <span>@(isRevoked ? "Revoked" : "Granted")</span> <code>[@audit.Action.GetName().ToUpper()]</code> on the <code>@(audit.Resource)</code>-resource to <span class="fst-italic small">@(audit.UserId ?? audit.RoleId)</span>.
+                            <span>@(isRevoked ? "Revoked" : "Granted")</span> <code>[@audit.Action.GetName().ToUpper()]</code> on the <code>@(audit.Resource)</code>-resource.
                         </div>
                     </div>
                 </li>

@@ -12,6 +12,22 @@
     cursor: pointer;
 }
 
+.clear-filter {
+    background: #eee;
+    border-radius: 50%;
+    display: inline-block;
+    position: absolute;
+    right: 5px;
+    top: 6px;
+    line-height: 25px;
+    width: 25px;
+    height: 25px;
+    text-align: center;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+}
+
 .col-3:has(.toggle-audits.closed) {
     background: #fff !important;
     transform: translateX(100%);

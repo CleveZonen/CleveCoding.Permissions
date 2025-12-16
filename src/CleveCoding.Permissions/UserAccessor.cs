@@ -125,7 +125,7 @@ public sealed class UserAccessor : IDisposable, IUserAccessor
 		if (identityArr.Length > 1)
 		{
 			domain = identityArr[0];
-			loadedAccount.AccountName = identityArr[1].ToUpper();
+			loadedAccount.AccountName = identityArr[1];
 			loadedAccount.UserName = identityArr[1];
 		}
 		else

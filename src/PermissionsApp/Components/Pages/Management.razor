@@ -1,3 +1,27 @@
 ﻿@page "/management"
 
-<CleveCoding.Permissions.UI.PermissionManagement />
+@using Blazored.Toast.Services
+@using CleveCoding.Permissions.UI
+
+@rendermode InteractiveServer
+@attribute [StreamRendering]
+
+@inject IToastService ToastService
+
+<PageTitle>Permissions Management Panel</PageTitle>
+
+<PermissionManagement OnSaved="OnSavedAsync" OnError="OnErrorAsync" />
+
+@code {
+
+    public async Task OnSavedAsync(bool result)
+    {
+        ToastService.ShowSuccess("Permission has been saved.");
+    }
+
+    public async Task OnErrorAsync(string message)
+    {
+        ToastService.ShowError(message);
+    }
+
+}

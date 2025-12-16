@@ -1,4 +1,5 @@
 using System.Runtime.Versioning;
+using Blazored.Toast;
 using CleveCoding.Kernel.Cryptography;
 using CleveCoding.Kernel.Options;
 using CleveCoding.Permissions.Extensions;
@@ -48,6 +49,9 @@ builder.Services.AddPermissions<GetItemsForIndexRequest>(config =>
 	config.AdminRoles = ["HRM-Role-Administrators", "HRM-Role-Development"];
 	config.Roles = ["HRM-Role-Administrators", "HRM-Role-Development", "HRM-Role-Secretary", "HRM-Role-Users"];
 });
+
+// Add Blazored Toasts.
+builder.Services.AddBlazoredToast();
 
 var app = builder.Build();
 

@@ -1,4 +1,6 @@
-﻿@using CleveCoding.Permissions.Middleware
+﻿@using Blazored.Toast
+@using Blazored.Toast.Configuration
+@using CleveCoding.Permissions.Middleware
 
 @inherits LayoutComponentBase
 
@@ -18,6 +20,11 @@
             </PermissionErrorBoundary>
         </article>
     </main>
+    
+	<BlazoredToasts @rendermode="InteractiveServer"
+	                Position="ToastPosition.BottomRight"
+	                ShowProgressBar="true"
+	                ShowCloseButton="false"/>
 </div>
 
 <div id="blazor-error-ui">
