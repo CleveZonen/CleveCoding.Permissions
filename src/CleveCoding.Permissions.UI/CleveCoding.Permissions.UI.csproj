@@ -4,6 +4,11 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>CleveCoding Permissions UI Package</Title>
+    <Description>Permissions UI Package for Cleve Projects.</Description>
+    <PackageProjectUrl>https://github.com/CleveZonen/CleveCoding.Permissions</PackageProjectUrl>
+    <RepositoryType>https://github.com/CleveZonen/CleveCoding.Permissions</RepositoryType>
   </PropertyGroup>
 
 
