@@ -66,60 +66,47 @@
                          Datasource="_selectedPermissions"
                          OnChanged="OnPermissionChangedAsync" />
     </div>
-    @if (Audits is not null && Audits.Any())
+    @if (_audits is not null && _audits.Any())
     {
         <div class="col-3 position-relative bg-light rounded py-2">
             <span class="toggle-audits @(!_isAuditOpen ? "closed" : "")" title="@(!_isAuditOpen ? "Show" : "Hide") audits."
                   @onclick="x => _isAuditOpen = !_isAuditOpen">
                 @(!_isAuditOpen ? "<" : ">")
             </span>
-            <AuditsView Datasource="Audits" />
+            <AuditsView Datasource="_audits" />
         </div>
     }
 </div>
 
 @code {
 
+    /// <summary>
+    /// The callback when an changed permission 
+    ///  has been succesfully saved.
+    /// </summary>
     [Parameter]
     public EventCallback<bool> OnSaved { get; set; }
 
+    /// <summary>
+    /// The callback when an error occured attempting 
+    ///  to save an changed permission.
+    /// </summary>
     [Parameter]
     public EventCallback<string> OnError { get; set; }
-
-    enum ViewMode
-    {
-        Users = 0,
-        Roles = 1
-    }
-
-    /// <summary>
-    /// Roles for permissions.
-    /// </summary>
-    protected IEnumerable<string>? Roles { get; private set; }
-
-    /// <summary>
-    /// Users for permissions.
-    /// </summary>
-    protected IEnumerable<UserPrincipal>? Users { get; private set; }
-
-    /// <summary>
-    /// Audits of permission changes.
-    /// </summary>
-    protected IEnumerable<UserPermissionAudit>? Audits { get; private set; }
 
     /// <summary>
     /// The roles datasource with the filter applied.
     /// </summary>
     protected IEnumerable<string>? RolesDatasource => !string.IsNullOrWhiteSpace(_filter)
-                                                                ? Roles?.Where(x => x.Contains(_filter, StringComparison.CurrentCultureIgnoreCase))
-                                                                : Roles;
+                                                                ? _roles?.Where(x => x.Contains(_filter, StringComparison.CurrentCultureIgnoreCase))
+                                                                : _roles;
 
     /// <summary>
     /// The users datasource with the filter applied.
     /// </summary>
     protected IEnumerable<UserPrincipal>? UsersDatasource => !string.IsNullOrWhiteSpace(_filter)
-                                                                ? Users?.Where(x => x.DisplayName.Contains(_filter, StringComparison.CurrentCultureIgnoreCase))
-                                                                : Users;
+                                                                ? _users?.Where(x => x.DisplayName.Contains(_filter, StringComparison.CurrentCultureIgnoreCase))
+                                                                : _users;
 
     /// <summary>
     /// The selected user in the Users-screen.
@@ -131,6 +118,9 @@
     /// </summary>
     protected string? SelectedRole { get; private set; }
 
+    private IEnumerable<string>? _roles;
+    private IEnumerable<UserPrincipal>? _users;
+    private IEnumerable<UserPermissionAudit>? _audits;
     private string? _filter;
     private ViewMode _currentView;
     private bool _isAuditOpen = true;
@@ -146,8 +136,8 @@
             throw new ForbiddenException();
         }
 
-        Roles = PermissionConfiguration.Roles.Except(PermissionConfiguration.AdminRoles);
-        Users = UserLookupService.GetUsers()?.OrderBy(x => x.DisplayName);
+        _roles = PermissionConfiguration.Roles.Except(PermissionConfiguration.AdminRoles);
+        _users = UserLookupService.GetUsers()?.OrderBy(x => x.DisplayName);
     }
 
     private async Task OnPermissionChangedAsync(ChangeEventArgs args, UserPermission permission)
@@ -166,13 +156,17 @@
             {
                 // save the user permission change.
                 await PermissionService.SetUserPermissionsAsync(permission, newValue);
-                Audits = await PermissionService.GetAuditsForUserAsync(permission.UserId!);
+
+                // refresh the audits.
+                _audits = await PermissionService.GetAuditsForUserAsync(permission.UserId!);
             }
             else
             {
                 // save the role permission change.
                 await PermissionService.SetRolePermissionsAsync(permission, newValue);
-                Audits = await PermissionService.GetAuditsForRoleAsync(permission.RoleId!);
+
+                // refresh the audits.
+                _audits = await PermissionService.GetAuditsForRoleAsync(permission.RoleId!);
             }
 
             await OnSaved.InvokeAsync(true);
@@ -188,7 +182,7 @@
     private async Task ChangeRoleAsync(string role)
     {
         SelectedRole = role;
-        Audits = await PermissionService.GetAuditsForRoleAsync(SelectedRole);
+        _audits = await PermissionService.GetAuditsForRoleAsync(SelectedRole);
 
         var registeredPermissions = PermissionDescriptions.Select(x => new UserPermission
         {
@@ -232,7 +226,7 @@
     private async Task ChangeUserAsync(UserPrincipal user)
     {
         SelectedUser = user;
-        Audits = await PermissionService.GetAuditsForUserAsync(SelectedUser.SamAccountName);
+        _audits = await PermissionService.GetAuditsForUserAsync(SelectedUser.SamAccountName);
 
         var registeredPermissions = PermissionDescriptions.Select(x => new UserPermission
         {
@@ -283,7 +277,7 @@
         _filter = null;
         SelectedUser = null;
         SelectedRole = null;
-        Audits = null;
+        _audits = null;
     }
 
     private string GetSelectedCssClass(UserPrincipal user)
@@ -291,5 +285,14 @@
 
     private string GetSelectedCssClass(string role)
         => SelectedRole?.Equals(role) == true ? "selected" : "";
+
+    /// <summary>
+    /// Helper enum for the screen.
+    /// </summary>
+    enum ViewMode
+    {
+        Users = 0,
+        Roles = 1
+    }
 
 }
