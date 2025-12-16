@@ -1,22 +1,24 @@
 ﻿@using System.DirectoryServices.AccountManagement
 
-<small class="text-muted">Found @(Datasource?.Count() ?? 0) users.</small>
-<ol class="list-group list-group-numbered">
-    @foreach (var user in Datasource ?? [])
-    {
-        <li class="list-group-item d-flex justify-content-between align-items-start @SelectedCssClass?.Invoke(user)" @onclick="x => OnUserChange(user)">
-            <div class="ms-2 me-auto">
-                <div class="fw-bold">@user.DisplayName</div>
-                @user.EmailAddress
-                @if (!string.IsNullOrWhiteSpace(user.Description))
-                {
-                    <div class="text-muted small alert alert-light m-0 mt-1 p-1 px-3">@user.Description</div>
-                }
-            </div>
-            <span class="badge bg-primary rounded-pill">@user.SamAccountName</span>
-        </li>
-    }
-</ol>
+<div class="users-view">
+    <small class="text-muted">Found @(Datasource?.Count() ?? 0) users.</small>
+    <ol class="list-group list-group-numbered">
+        @foreach (var user in Datasource ?? [])
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-start @SelectedCssClass?.Invoke(user)" @onclick="x => OnUserChange(user)">
+                <div class="ms-2 me-auto">
+                    <div class="fw-bold">@user.DisplayName</div>
+                    @user.EmailAddress
+                    @if (!string.IsNullOrWhiteSpace(user.Description))
+                    {
+                        <div class="text-muted small alert alert-light m-0 mt-1 p-1 px-3">@user.Description</div>
+                    }
+                </div>
+                <span class="badge bg-primary rounded-pill">@user.SamAccountName</span>
+            </li>
+        }
+    </ol>
+</div>
 
 @code {
 

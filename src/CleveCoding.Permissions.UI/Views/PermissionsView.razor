@@ -5,54 +5,56 @@
 
 @if (Permissions.Any(x => x.Permissions.Any()))
 {
-    @if (!string.IsNullOrWhiteSpace(Group))
-    {
-        <h3 class="h4">@Group</h3>
-    }
-    <table class="table table-striped">
-        <thead class="table-dark">
-            <tr>
-                <td>Resource</td>
-                @foreach (var header in Headers)
-                {
-                    <td>@header.GetName()</td>
-                }
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var selectedPermission in Permissions.Where(x => x.Permissions.Any()))
-            {
+    <div class="permissions-view mb-5">
+        @if (!string.IsNullOrWhiteSpace(Group))
+        {
+            <h3 class="h4">@Group</h3>
+        }
+        <table class="table table-striped">
+            <thead class="table-dark">
                 <tr>
-                    <td class="w-25">
-                        @selectedPermission.Resource
-                    </td>
+                    <td>Resource</td>
                     @foreach (var header in Headers)
                     {
-                        var permission = selectedPermission.Get(header);
-                        if (permission is not null)
-                        {
-                            var description = @GetPermissionDescription(permission.Resource, permission.Action);
-                            <td>
-                                <div class="form-check form-switch d-inline-block p-0 m-0">
-                                    <input @bind="permission.HasAccess" @oninput="x => OnChanged(x, permission)" class="form-check-input m-0 mt-2" type="checkbox" />
-                                </div>
-                                @if (!string.IsNullOrWhiteSpace(description))
-                                {
-                                    <span class="tooltip-icon">
-                                        <span>@description</span>
-                                    </span>
-                                }
-                            </td>
-                        }
-                        else
-                        {
-                            <td><small>n/a</small></td>
-                        }
+                        <td>@header.GetName()</td>
                     }
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var selectedPermission in Permissions.Where(x => x.Permissions.Any()))
+                {
+                    <tr>
+                        <td class="w-25">
+                            @selectedPermission.Resource
+                        </td>
+                        @foreach (var header in Headers)
+                        {
+                            var permission = selectedPermission.Get(header);
+                            if (permission is not null)
+                            {
+                                var description = @GetPermissionDescription(permission.Resource, permission.Action);
+                                <td>
+                                    <div class="form-check form-switch d-inline-block p-0 m-0">
+                                        <input @bind="permission.HasAccess" @oninput="x => OnChanged(x, permission)" class="form-check-input m-0 mt-2" type="checkbox" />
+                                    </div>
+                                    @if (!string.IsNullOrWhiteSpace(description))
+                                    {
+                                        <span class="tooltip-icon">
+                                            <span>@description</span>
+                                        </span>
+                                    }
+                                </td>
+                            }
+                            else
+                            {
+                                <td><small>n/a</small></td>
+                            }
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
 
 @code {

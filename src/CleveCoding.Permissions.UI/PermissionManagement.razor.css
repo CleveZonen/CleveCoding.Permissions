@@ -1,4 +1,29 @@
-﻿::deep .list-group.list-group-numbered li:hover {
+﻿.toggle-audits {
+    background: #333;
+    border-radius: 50%;
+    display: inline-block;
+    transform: translateX(-30px);
+    line-height: 30px;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    font-size: 20px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.col-3:has(.toggle-audits.closed) {
+    background: #fff !important;
+    transform: translateX(100%);
+    width: 0;
+    padding: 0;
+}
+
+    .col-3:has(.toggle-audits.closed) ::deep .audits-view {
+        overflow: hidden;
+    }
+
+::deep .list-group.list-group-numbered li:hover {
     background: #eee;
     cursor: pointer;
 }

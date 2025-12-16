@@ -1,5 +1,6 @@
 using System.Runtime.Versioning;
 using CleveCoding.Kernel.Cryptography;
+using CleveCoding.Kernel.Options;
 using CleveCoding.Permissions.Extensions;
 using CleveCoding.Permissions.UI;
 using CleveCoding.PermissionsApp.Components;
@@ -25,6 +26,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
 	.AddInteractiveServerComponents();
+
+// Configuration Options.
+builder.Services.Configure<ApplicationInfoOption>(builder.Configuration.GetSection(ApplicationInfoOption.Section));
 
 // Add HttpContext Accessor service.
 builder.Services.AddHttpContextAccessor();

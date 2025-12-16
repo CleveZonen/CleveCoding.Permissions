@@ -21,78 +21,58 @@
 <div class="btn-group mb-1" role="group" aria-label="View Mode">
     <button type="button" class="btn btn-primary" @onclick="e => ChangeMode(ViewMode.Users)">Users</button>
     <button type="button" class="btn btn-primary" @onclick="e => ChangeMode(ViewMode.Roles)">Roles</button>
-    <button type="button" class="btn btn-secondary" @onclick="e => ChangeMode(ViewMode.Audits)">Audits</button>
 </div>
 
 <div class="row mb-3">
-    @if (_currentView != ViewMode.Audits)
-    {
-        <div class="col-3 bg-light rounded py-2">
-            <h2>@_currentView</h2>
-            <div class="form-field mb-1">
-                <input type="text" class="form-control form-control-solid" @bind-value="_filter" @bind-value:event="oninput" placeholder="Filter by name.." />
-            </div>
-            <div class="optionslist d-flex flex-column vh-100 overflow-auto">
-                @switch (_currentView)
-                {
-                    default:
-                    case ViewMode.Users:
-                        <UsersView Datasource="UsersDatasource" OnUserChange="ChangeUser" SelectedCssClass="GetSelectedCssClass" />
-                        break;
-                    case ViewMode.Roles:
-                        <RolesView Datasource="RolesDatasource" OnRoleChange="ChangeRole" SelectedCssClass="GetSelectedCssClass" />
-                        break;
-                }
-            </div>
+    <div class="col-3 bg-light rounded py-2">
+        <h2>@_currentView</h2>
+        <div class="form-field mb-2">
+            <input type="text" class="form-control form-control-solid" @bind-value="_filter" @bind-value:event="oninput" placeholder="Filter by name.." />
         </div>
-        <div class="col">
-            <h2>Permissions</h2>
-            @if (SelectedUser is null && SelectedRole is null)
+        <div class="optionslist d-flex flex-column vh-100 overflow-auto">
+            @switch (_currentView)
             {
-                <p>Make an selection to start.</p>
+                default:
+                case ViewMode.Users:
+                    <UsersView Datasource="UsersDatasource" OnUserChange="ChangeUser" SelectedCssClass="GetSelectedCssClass" />
+                    break;
+                case ViewMode.Roles:
+                    <RolesView Datasource="RolesDatasource" OnRoleChange="ChangeRole" SelectedCssClass="GetSelectedCssClass" />
+                    break;
             }
-            else
-            {
-                <p>Manage the permissions for <strong>@(SelectedUser?.DisplayName ?? SelectedRole)</strong>.</p>
-            }
-
-            <PermissionsView Group="Data"
-                             Headers="_headers.Where(x => x.EqualsGroup(UserActionType.ViewIndex))"
-                             Datasource="_selectedPermissions"
-                             OnChanged="OnPermissionChanged" />
-            <PermissionsView Group="I/O"
-                             Headers="_headers.Where(x => x.EqualsGroup(UserActionType.Download))"
-                             Datasource="_selectedPermissions"
-                             OnChanged="OnPermissionChanged" />
-            <PermissionsView Group="Reviews"
-                             Headers="_headers.Where(x => x.EqualsGroup(UserActionType.Assign))"
-                             Datasource="_selectedPermissions"
-                             OnChanged="OnPermissionChanged" />
         </div>
-    }
-    else
+    </div>
+    <div class="col">
+        <h2>Permissions</h2>
+        @if (SelectedUser is null && SelectedRole is null)
+        {
+            <p>Make an selection to start.</p>
+        }
+        else
+        {
+            <p>Manage the permissions for <strong>@(SelectedUser?.DisplayName ?? SelectedRole)</strong>.</p>
+        }
+        <PermissionsView Group="Data"
+                         Headers="_headers.Where(x => x.EqualsGroup(UserActionType.ViewIndex))"
+                         Datasource="_selectedPermissions"
+                         OnChanged="OnPermissionChanged" />
+        <PermissionsView Group="I/O"
+                         Headers="_headers.Where(x => x.EqualsGroup(UserActionType.Download))"
+                         Datasource="_selectedPermissions"
+                         OnChanged="OnPermissionChanged" />
+        <PermissionsView Group="Reviews"
+                         Headers="_headers.Where(x => x.EqualsGroup(UserActionType.Assign))"
+                         Datasource="_selectedPermissions"
+                         OnChanged="OnPermissionChanged" />
+    </div>
+    @if (Audits is not null && Audits.Any())
     {
-        <div class="col bg-light rounded">
-            <h2>@_currentView</h2>
-            <div class="form-field mb-1">
-                <input type="text" class="form-control form-control-solid" @bind-value="_filter" @bind-value:event="oninput" placeholder="Filter by UserId or RoleId.." />
-            </div>
-            <div class="card mb-3">
-                <QuickGrid Items="AuditsDatasource?.AsQueryable()" Pagination="Pagination" Class="table table-striped">
-                    <TemplateColumn Title="Created on" Class="align-middle" SortBy="GridSort<UserPermissionAudit>.ByDescending(x => x.CreatedAt)">
-                        @context.CreatedAt.ToLocalFormat()
-                    </TemplateColumn>
-                    <PropertyColumn Title="Changed by" Class="align-middle" Property="@(p => p.CreatedBy)" Sortable="true" />
-                    <PropertyColumn Title="User" Class="align-middle" Property="@(p => p.UserId)" Sortable="true" />
-                    <PropertyColumn Title="Role" Class="align-middle" Property="@(p => p.RoleId)" Sortable="true" />
-                    <PropertyColumn Title="Resource" Class="align-middle" Property="@(p => p.Resource)" Sortable="true" />
-                    <PropertyColumn Title="Action" Class="align-middle" Property="@(p => p.Action)" Sortable="true" />
-                    <TemplateColumn Title="Change" Class="align-middle">
-                        @context.OldValue -> @(!context.OldValue)
-                    </TemplateColumn>
-                </QuickGrid>
-                <Paginator State="Pagination" />
-            </div>
+        <div class="col-3 position-relative bg-light rounded py-2">
+            <span class="toggle-audits @(!_isAuditOpen ? "closed" : "")" title="@(!_isAuditOpen ? "Show" : "Hide") audits."
+                  @onclick="x => _isAuditOpen = !_isAuditOpen">
+                @(!_isAuditOpen ? "<" : ">")
+            </span>
+            <AuditsView Datasource="Audits" />
         </div>
     }
 </div>
@@ -102,8 +82,7 @@
     enum ViewMode
     {
         Users = 0,
-        Roles = 1,
-        Audits = 2
+        Roles = 1
     }
 
     /// <summary>
@@ -122,13 +101,6 @@
     protected IEnumerable<UserPermissionAudit>? Audits { get; private set; }
 
     /// <summary>
-    /// The users datasource with the filter applied.
-    /// </summary>
-    protected IEnumerable<UserPrincipal>? UsersDatasource => !string.IsNullOrWhiteSpace(_filter)
-                                                                ? Users?.Where(x => x.DisplayName.Contains(_filter, StringComparison.CurrentCultureIgnoreCase))
-                                                                : Users;
-
-    /// <summary>
     /// The roles datasource with the filter applied.
     /// </summary>
     protected IEnumerable<string>? RolesDatasource => !string.IsNullOrWhiteSpace(_filter)
@@ -136,12 +108,11 @@
                                                                 : Roles;
 
     /// <summary>
-    /// The audits datasource with the filter applied.
+    /// The users datasource with the filter applied.
     /// </summary>
-    protected IEnumerable<UserPermissionAudit>? AuditsDatasource => !string.IsNullOrWhiteSpace(_filter)
-                                                                ? Audits?.Where(x => (x.RoleId is not null && x.RoleId.Contains(_filter, StringComparison.CurrentCultureIgnoreCase))
-                                                                                || (x.UserId is not null && x.UserId.Contains(_filter, StringComparison.CurrentCultureIgnoreCase)))
-                                                                : Audits;
+    protected IEnumerable<UserPrincipal>? UsersDatasource => !string.IsNullOrWhiteSpace(_filter)
+                                                                ? Users?.Where(x => x.DisplayName.Contains(_filter, StringComparison.CurrentCultureIgnoreCase))
+                                                                : Users;
 
     /// <summary>
     /// The selected user in the Users-screen.
@@ -153,14 +124,13 @@
     /// </summary>
     protected string? SelectedRole { get; private set; }
 
-    protected PaginationState Pagination = new() { ItemsPerPage = 30 };
-
     private string? _filter;
     private ViewMode _currentView;
+    private bool _isAuditOpen = true;
     private IEnumerable<UserActionType> _headers = [];
     private IEnumerable<PermissionSet> _selectedPermissions = [];
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         if (UserAccessor.CurrentUser is null || !UserAccessor.IsAdmin(UserAccessor.CurrentUser))
         {
@@ -171,7 +141,6 @@
 
         Roles = PermissionConfiguration.Roles.Except(PermissionConfiguration.AdminRoles);
         Users = UserLookupService.GetUsers()?.OrderBy(x => x.DisplayName);
-        Audits = await PermissionService.GetAuditsAsync();
     }
 
     private void OnPermissionChanged(ChangeEventArgs args, UserPermission permission)
@@ -197,6 +166,7 @@
     private async Task ChangeRole(string role)
     {
         SelectedRole = role;
+        Audits = await PermissionService.GetAuditsForRoleAsync(SelectedRole);
 
         var registeredPermissions = PermissionDescriptions.Select(x => new UserPermission
         {
@@ -240,6 +210,7 @@
     private async Task ChangeUser(UserPrincipal user)
     {
         SelectedUser = user;
+        Audits = await PermissionService.GetAuditsForUserAsync(SelectedUser.SamAccountName);
 
         var registeredPermissions = PermissionDescriptions.Select(x => new UserPermission
         {
@@ -290,6 +261,7 @@
         _filter = null;
         SelectedUser = null;
         SelectedRole = null;
+        Audits = null;
     }
 
     private string GetSelectedCssClass(UserPrincipal user)

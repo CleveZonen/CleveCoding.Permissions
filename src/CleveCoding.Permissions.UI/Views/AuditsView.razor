@@ -1,0 +1,34 @@
+﻿@using CleveCoding.Kernel.Extensions
+@using CleveCoding.Permissions.Models
+@using Microsoft.AspNetCore.Components.QuickGrid
+
+@if (Datasource is not null && Datasource.Any())
+{
+    <div class="audits-view">
+        <h2>Audits</h2>
+        <ol class="list-group list-style-none d-flex flex-column vh-100 overflow-auto">
+            @foreach (var audit in Datasource ?? [])
+            {
+                var isRevoked = audit.OldValue == true;
+                <li class="list-group-item justify-content-between align-items-start bg-light border-0 p-0 mb-2">
+                    <div class="align-items-center">
+                        <div class="small p-2 px-3 ps-0 pb-0">
+                            @audit.CreatedAt.ToLocalFormat()
+                            <span class="ms-1">- @audit.CreatedBy</span>
+                        </div>
+                        <div class="bg-white p-1 px-2 rounded border-@(isRevoked ? "danger" : "success") border-3 border-start">
+                            <span>@(isRevoked ? "Revoked" : "Granted")</span> <code>[@audit.Action.GetName().ToUpper()]</code> on the <code>@(audit.Resource)</code>-resource to <span class="fst-italic small">@(audit.UserId ?? audit.RoleId)</span>.
+                        </div>
+                    </div>
+                </li>
+            }
+        </ol>
+    </div>
+}
+
+@code {
+
+    [Parameter, EditorRequired]
+    public IEnumerable<UserPermissionAudit>? Datasource { get; set; }
+
+}
