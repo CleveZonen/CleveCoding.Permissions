@@ -13,6 +13,9 @@ public enum UserActionType
 	[Display(Name = "Details", GroupName = "Data")]
 	ViewDetails = 110,
 
+	[Display(Name = "Widget", GroupName = "Data")]
+	ViewWidget = 115,
+
 	[Display(Name = "Create", GroupName = "Data")]
 	Create = 120,
 
