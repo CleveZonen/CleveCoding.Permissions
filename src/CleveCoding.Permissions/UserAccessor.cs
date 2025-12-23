@@ -1,10 +1,10 @@
-﻿using System.DirectoryServices.AccountManagement;
-using System.Security.Principal;
-using CleveCoding.Kernel;
+﻿using CleveCoding.Kernel;
 using CleveCoding.Permissions.Configurations;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
+using System.DirectoryServices.AccountManagement;
+using System.Security.Principal;
 
 namespace CleveCoding.Permissions;
 
