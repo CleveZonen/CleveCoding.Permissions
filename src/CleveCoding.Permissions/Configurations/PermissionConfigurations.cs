@@ -11,12 +11,12 @@ public record PermissionConfigurations
 	/// <summary>
 	/// List of the administrators roles.
 	/// </summary>
-	public string[] AdminRoles { get; set; } = [];
+	public IEnumerable<string> AdminRoles { get; set; } = [];
 
 	/// <summary>
 	/// List of all the roles. Including administrators roles.
 	/// </summary>
-	public string[] Roles { get; set; } = [];
+	public IEnumerable<string> Roles { get; set; } = [];
 
 	/// <summary>
 	/// The error page to redirect.
