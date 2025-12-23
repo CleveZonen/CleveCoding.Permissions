@@ -1,40 +1,41 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Title>CleveCoding Permissions UI Package</Title>
-    <Description>Permissions UI Package for Cleve Projects.</Description>
-    <PackageProjectUrl>https://github.com/CleveZonen/CleveCoding.Permissions</PackageProjectUrl>
-    <RepositoryType>https://github.com/CleveZonen/CleveCoding.Permissions</RepositoryType>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Title>CleveCoding Permissions UI Package</Title>
+		<Description>Permissions UI Package for Cleve Projects.</Description>
+		<PackageProjectUrl>https://github.com/CleveZonen/CleveCoding.Permissions</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/CleveZonen/CleveCoding.Permissions</RepositoryUrl>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+	</PropertyGroup>
 
 
-  <ItemGroup>
-    <SupportedPlatform Include="browser" />
-  </ItemGroup>
+	<ItemGroup>
+		<SupportedPlatform Include="browser" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.11" />
-	<PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="9.0.11" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.11" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="9.0.11" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\CleveCoding.Permissions\CleveCoding.Permissions.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\CleveCoding.Permissions\CleveCoding.Permissions.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Content Update="ForbiddenPage.razor">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+	<ItemGroup>
+		<Content Update="ForbiddenPage.razor">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="PermissionManagement.razor.css">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="PermissionManagement.razor.css">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
 </Project>
