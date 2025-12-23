@@ -13,12 +13,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="AccountManagement\**" />
-		<EmbeddedResource Remove="AccountManagement\**" />
-		<None Remove="AccountManagement\**" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="CleveCoding.Kernel" Version="1.0.3" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.11" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.11" />
