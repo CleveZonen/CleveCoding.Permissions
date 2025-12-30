@@ -35,16 +35,17 @@ public static class PermissionServiceCollectionExtensions
 		services.AddDbContext<PermissionDbContext>(options => options.UseSqlServer(permissionConfigurations.ConnectionString,
 			sqlServerOptionsAction: sqlOptions => sqlOptions.MigrationsAssembly(typeof(PermissionDbContext).Assembly.FullName)), ServiceLifetime.Transient);
 
+		// register the UserAccessor and PermissionEvaluator.
+		services.AddHttpContextAccessor();
+		services.AddScoped<IUserAccessor, UserAccessor>();
+		services.AddScoped<IPermissionEvaluator, PermissionEvaluator>();
+
 		// register the Services.
 		services.AddMemoryCache();
 		services.AddScoped<PermissionCache>();
 		services.AddScoped<IUserLookupService, UserLookupService>();
 		services.AddScoped<IPermissionService, PermissionService>();
-
-		// register the UserAccessor and PermissionEvaluator.
-		services.AddHttpContextAccessor();
-		services.AddScoped<IUserAccessor, UserAccessor>();
-		services.AddScoped<IPermissionEvaluator, PermissionEvaluator>();
+		services.AddScoped<IUserDataAccessService, UserDataAccessService>();
 
 		// register the UserContextInitializer
 		// to populate the UserAccount with its permissions.

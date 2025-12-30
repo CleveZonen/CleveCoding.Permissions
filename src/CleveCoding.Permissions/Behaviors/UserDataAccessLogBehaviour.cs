@@ -1,11 +1,10 @@
 ﻿using CleveCoding.Kernel;
-using CleveCoding.Permissions.Entities;
-using CleveCoding.Permissions.Persistance;
+using CleveCoding.Permissions.Services;
 using MediatR;
 
 namespace CleveCoding.Permissions.Behaviors;
 
-public sealed class UserDataAccessLogBehaviour<TRequest, TResponse>(IUserAccessor UserAccessor, PermissionDbContext permissionDbContext)
+public sealed class UserDataAccessLogBehaviour<TRequest, TResponse>(IUserDataAccessService userDataAccessService)
 	: IPipelineBehavior<TRequest, TResponse>
 		where TRequest : IRequest<TResponse>
 		where TResponse : Result
@@ -17,36 +16,23 @@ public sealed class UserDataAccessLogBehaviour<TRequest, TResponse>(IUserAccesso
 		if (request is not IRequirePermission permissionRequest)
 			return response;
 
+		// Only log if the permission involves personal data and the action is relevant.
 		var permission = permissionRequest.RequiredPermission;
-
 		if (!permission.ContainsPersonalData ||
 			permission.Action is not UserActionType.ViewDetails
-									 and not UserActionType.ViewIndex
-									 and not UserActionType.Export
-									 and not UserActionType.Download)
+								and not UserActionType.ViewIndex
+								and not UserActionType.Export
+								and not UserActionType.Download)
 		{
 			return response;
 		}
 
+		// Ensure the request contains user context.
 		if (request is not IUserDataAccessScopedRequest employeeRequest)
 			return response;
 
-		var accessTime = DateTime.UtcNow;
-		var groupId = Guid.NewGuid();
-		foreach (var category in permission.DataCategories)
-		{
-			await permissionDbContext.UserDataAccessLogs.AddAsync(new UserDataAccessLogEntity
-			{
-				UserId = employeeRequest.UserId,
-				AccessedByUserId = UserAccessor.CurrentUser!.AccountName,
-				Action = permission.Action,
-				DataCategory = category,
-				AccessGroupId = groupId,
-				CreatedAt = accessTime
-			}, cancellationToken);
-		}
-
-		await permissionDbContext.SaveChangesAsync(cancellationToken);
+		// Register the data access.
+		await userDataAccessService.RegisterAsync(employeeRequest.UserId, permission, cancellationToken);
 
 		return response;
 	}

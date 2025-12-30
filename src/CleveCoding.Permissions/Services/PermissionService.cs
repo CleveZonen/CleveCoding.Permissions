@@ -58,15 +58,6 @@ public interface IPermissionService
 	/// <param name="roleId"></param>
 	/// <returns></returns>
 	Task<IEnumerable<UserPermissionAudit>?> GetAuditsForRoleAsync(string roleId);
-
-	/// <summary>
-	/// Get data access logs for the given user within the specified date range.
-	/// </summary>
-	/// <param name="userId"></param>
-	/// <param name="from"></param>
-	/// <param name="to"></param>
-	/// <returns></returns>
-	Task<IEnumerable<UserDataAccessLog>?> GetDataAccessLogsAsync(string userId, DateTime from, DateTime to);
 }
 
 public class PermissionService(PermissionDbContext Context, PermissionCache PermissionCache, IUserAccessor UserAccessor, IUserLookupService UserLookupService)
@@ -364,26 +355,6 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
 				OldValue = x.OldValue,
 				CreatedAt = x.CreatedAt,
 				CreatedBy = x.CreatedBy,
-			})
-			.ToListAsync();
-	}
-
-	/// <inheritdoc/>
-	public async Task<IEnumerable<UserDataAccessLog>?> GetDataAccessLogsAsync(string userId, DateTime from, DateTime to)
-	{
-		return await Context.UserDataAccessLogs
-			.Where(x => x.UserId == userId && x.CreatedAt.Date >= from.Date && x.CreatedAt.Date <= to.Date)
-			.OrderByDescending(x => x.CreatedAt)
-			.AsNoTracking()
-			.Select(x => new UserDataAccessLog
-			{
-				Id = x.Id,
-				UserId = x.UserId,
-				AccessedByUserId = x.AccessedByUserId,
-				AccessGroupId = x.AccessGroupId,
-				Action = x.Action,
-				DataCategory = x.DataCategory,
-				CreatedAt = x.CreatedAt
 			})
 			.ToListAsync();
 	}
