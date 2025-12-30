@@ -40,7 +40,7 @@ public class PermissionRouteView : RouteView
 		// evaluate the user permissions for access.
 		if (attrs.Count != 0)
 		{
-			hasAccess = attrs.Any(attr => PermissionEvaluator.HasPermission(new(attr.Resource, attr.Action)));
+			hasAccess = attrs.Any(attr => PermissionEvaluator.HasPermission(new(attr.Resource, attr.Action, "")));
 		}
 
 		if (!hasAccess)

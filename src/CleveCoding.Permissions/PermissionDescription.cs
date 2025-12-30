@@ -4,12 +4,18 @@
 /// Defines a permission set with
 /// the data categories coupled.
 /// </summary>
-public sealed class PermissionDescription
+/// <param name="Resource"></param>
+/// <param name="Action"></param>
+/// <param name="Description"></param>
+public sealed class PermissionDescription(string Resource, UserActionType Action, string Description)
 {
-	public UserActionType ActionType { get; init; }
-	public required string Resource { get; init; }
-	public required string Description { get; init; }
-
+	/// <summary>
+	/// The User Data Categories associated with this permission.
+	/// </summary>
 	public IReadOnlyCollection<UserDataCategory> DataCategories { get; init; } = [];
+
+	/// <summary>
+	/// Gets a value indicating whether the data contains any personal information categories.
+	/// </summary>
 	public bool ContainsPersonalData => DataCategories.Count > 0;
 }

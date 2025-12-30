@@ -7,5 +7,11 @@ namespace CleveCoding.PermissionsApp.Features.Item;
 /// </summary>
 public class GetItemDetailsByIdRequest : IRequirePermission
 {
-	public PermissionDescription RequiredPermission => new(nameof(Item), UserActionType.ViewDetails, "Access to item details.");
+	public PermissionDescription RequiredPermission => new(nameof(Item), UserActionType.ViewDetails, "Access to item details.")
+	{
+		DataCategories = [
+			UserDataCategory.PersonalIdentity,
+			UserDataCategory.ContactInformation
+		]
+	};
 }
