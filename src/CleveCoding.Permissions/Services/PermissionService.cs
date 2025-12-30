@@ -331,7 +331,7 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
 	public async Task<IEnumerable<UserPermissionAudit>?> GetAuditsForUserAsync(string userId)
 	{
 		return await Context.UserPermissionAudits
-			.Where(x => x.UserId != null && x.UserId.Trim() == userId.Trim())
+			.Where(x => x.UserId != null && x.UserId == userId)
 			.OrderByDescending(x => x.CreatedAt)
 			.Take(1000)
 			.AsNoTracking()
@@ -368,10 +368,11 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
 			.ToListAsync();
 	}
 
+	/// <inheritdoc/>
 	public async Task<IEnumerable<UserDataAccessLog>?> GetDataAccessLogsAsync(string userId, DateTime from, DateTime to)
 	{
 		return await Context.UserDataAccessLogs
-			.Where(x => x.UserId == userId && x.CreatedAt >= from && x.CreatedAt <= to)
+			.Where(x => x.UserId == userId && x.CreatedAt.Date >= from.Date && x.CreatedAt.Date <= to.Date)
 			.OrderByDescending(x => x.CreatedAt)
 			.AsNoTracking()
 			.Select(x => new UserDataAccessLog
