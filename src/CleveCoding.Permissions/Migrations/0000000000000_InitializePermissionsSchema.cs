@@ -19,7 +19,7 @@ namespace CleveCoding.Permissions.Migrations
                     UserId = table.Column<string>(type: "varchar(max)", nullable: true),
                     RoleId = table.Column<string>(type: "varchar(max)", nullable: true),
                     Resource = table.Column<string>(type: "varchar(max)", nullable: false),
-                    Action = table.Column<int>(type: "int", nullable: false),
+                    Action = table.Column<short>(type: "smallint", nullable: false),
                     OldValue = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false)
@@ -38,7 +38,7 @@ namespace CleveCoding.Permissions.Migrations
                     UserId = table.Column<string>(type: "varchar(max)", nullable: true),
                     RoleId = table.Column<string>(type: "varchar(max)", nullable: true),
                     Resource = table.Column<string>(type: "varchar(max)", nullable: false),
-                    Action = table.Column<int>(type: "int", nullable: false),
+                    Action = table.Column<short>(type: "smallint", nullable: false),
                     HasAccess = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(100)", nullable: false)
