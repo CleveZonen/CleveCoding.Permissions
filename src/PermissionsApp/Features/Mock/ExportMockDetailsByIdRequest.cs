@@ -1,5 +1,4 @@
 ﻿using CleveCoding.Permissions;
-using CleveCoding.Permissions.Models;
 
 namespace CleveCoding.PermissionsApp.Features.Mock;
 

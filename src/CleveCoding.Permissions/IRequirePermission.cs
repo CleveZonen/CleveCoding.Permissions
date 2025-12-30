@@ -1,6 +1,4 @@
-﻿using CleveCoding.Permissions.Models;
-
-namespace CleveCoding.Permissions;
+﻿namespace CleveCoding.Permissions;
 
 /// <summary>
 /// Implemented by MediatR's IFeatureCommand<> to 

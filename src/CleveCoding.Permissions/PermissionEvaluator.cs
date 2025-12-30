@@ -1,5 +1,4 @@
 ﻿using CleveCoding.Permissions.Exceptions;
-using CleveCoding.Permissions.Models;
 
 namespace CleveCoding.Permissions;
 

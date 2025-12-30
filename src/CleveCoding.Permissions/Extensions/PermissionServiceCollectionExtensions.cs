@@ -2,7 +2,6 @@
 using CleveCoding.Permissions.Circuits;
 using CleveCoding.Permissions.Configurations;
 using CleveCoding.Permissions.Middleware;
-using CleveCoding.Permissions.Models;
 using CleveCoding.Permissions.Persistance;
 using CleveCoding.Permissions.Services;
 using Microsoft.AspNetCore.Builder;
