@@ -7,5 +7,10 @@ namespace CleveCoding.PermissionsApp.Features.Item;
 /// </summary>
 public class UpdateItemRequest : IRequirePermission
 {
-	public PermissionDescription RequiredPermission => new(nameof(Item), UserActionType.Update, "Permission to update items.");
+	public PermissionDescription RequiredPermission => new()
+	{
+		Resource = nameof(Item),
+		Action = UserActionType.Update,
+		Description = "Permission to update items."
+	};
 }

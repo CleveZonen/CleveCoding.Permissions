@@ -7,5 +7,10 @@ namespace CleveCoding.PermissionsApp.Features.Item;
 /// </summary>
 public class GetItemsForIndexRequest : IRequirePermission
 {
-	public PermissionDescription RequiredPermission => new(nameof(Item), UserActionType.ViewIndex, "Access to items index.");
+	public PermissionDescription RequiredPermission => new()
+	{
+		Resource = nameof(Item),
+		Action = UserActionType.ViewIndex,
+		Description = "Access to items index."
+	};
 }

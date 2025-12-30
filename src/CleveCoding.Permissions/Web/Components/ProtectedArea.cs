@@ -47,7 +47,12 @@ public class ProtectedArea : ComponentBase
 			return;
 		}
 
-		IsAuthorized = PermissionEvaluator.HasPermission(new(Resource, Action, ""));
+		IsAuthorized = PermissionEvaluator.HasPermission(new PermissionDescription
+		{
+			Action = Action,
+			Resource = Resource,
+			Description = string.Empty,
+		});
 	}
 
 	protected override void BuildRenderTree(RenderTreeBuilder builder)

@@ -7,5 +7,10 @@ namespace CleveCoding.PermissionsApp.Features.Item;
 /// </summary>
 public class DeleteItemRequest : IRequirePermission
 {
-	public PermissionDescription RequiredPermission => new(nameof(Item), UserActionType.Delete, "Permission to delete items.");
+	public PermissionDescription RequiredPermission => new()
+	{
+		Resource = nameof(Item),
+		Action = UserActionType.Delete,
+		Description = "Permission to delete items."
+	};
 }

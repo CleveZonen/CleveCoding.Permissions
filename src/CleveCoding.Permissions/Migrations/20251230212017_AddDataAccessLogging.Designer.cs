@@ -4,6 +4,7 @@ using CleveCoding.Permissions.Persistance;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CleveCoding.Permissions.Migrations
 {
     [DbContext(typeof(PermissionDbContext))]
-    partial class PermissionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251230212017_AddDataAccessLogging")]
+    partial class AddDataAccessLogging
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

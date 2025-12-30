@@ -7,5 +7,10 @@ namespace CleveCoding.PermissionsApp.Features.Item;
 /// </summary>
 public class CreateItemRequest : IRequirePermission
 {
-	public PermissionDescription RequiredPermission => new(nameof(Item), UserActionType.Create, "Permission to create items.");
+	public PermissionDescription RequiredPermission => new()
+	{
+		Resource = nameof(Item),
+		Action = UserActionType.Create,
+		Description = "Permission to create items."
+	};
 }

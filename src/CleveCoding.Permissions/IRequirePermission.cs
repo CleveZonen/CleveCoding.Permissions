@@ -9,9 +9,9 @@
 /// </summary>
 public interface IRequirePermission
 {
-    /// <summary>
-    /// Defines which permission is nessary to
-    /// access this resource.
-    /// </summary>
-    public PermissionDescription RequiredPermission { get; }
+	/// <summary>
+	/// Defines which permission is nessary to
+	/// access this resource.
+	/// </summary>
+	PermissionDescription RequiredPermission { get; }
 }

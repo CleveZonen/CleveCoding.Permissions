@@ -29,7 +29,7 @@ builder.Services.AddRazorComponents()
 	.AddInteractiveServerComponents();
 
 // Configuration Options.
-builder.Services.Configure<ApplicationInfoOption>(builder.Configuration.GetSection(ApplicationInfoOption.Section));
+builder.Services.Configure<ApplicationOptions>(builder.Configuration.GetSection(ApplicationOptions.Section));
 
 // Add HttpContext Accessor service.
 builder.Services.AddHttpContextAccessor();

@@ -57,16 +57,31 @@ public static class PermissionServiceCollectionExtensions
 		// register the MediatR permissions checks.
 		if (mediatRConfiguration is not null)
 		{
+			/// register all MediatR handlers from the assembly of T
+			/// into an existing MediatR configuration and add it to MediatR.
+
 			mediatRConfiguration.RegisterServicesFromAssembly(typeof(T).Assembly);
+
+			// register the behavior to verify permissions on each request.
 			mediatRConfiguration.AddOpenBehavior(typeof(VerifyPermissionBehavior<,>));
+
+			// register the behavior to log user data access on each request.
+			mediatRConfiguration.AddOpenBehavior(typeof(UserDataAccessLogBehaviour<,>));
+
 			services.AddMediatR(mediatRConfiguration);
 		}
 		else
 		{
+			/// register all MediatR handlers from the assembly of T
 			services.AddMediatR(cfg =>
 			{
 				cfg.RegisterServicesFromAssembly(typeof(T).Assembly);
+
+				// register the behavior to verify permissions on each request.
 				cfg.AddOpenBehavior(typeof(VerifyPermissionBehavior<,>));
+
+				// register the behavior to log user data access on each request.
+				cfg.AddOpenBehavior(typeof(UserDataAccessLogBehaviour<,>));
 			});
 		}
 

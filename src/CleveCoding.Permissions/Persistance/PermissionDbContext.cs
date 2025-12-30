@@ -15,6 +15,7 @@ public class PermissionDbContext(DbContextOptions<PermissionDbContext> options) 
 
 	public DbSet<UserPermissionEntity> UserPermissions { get; set; } = null!;
 	public DbSet<UserPermissionAuditEntity> UserPermissionAudits { get; set; } = null!;
+	public DbSet<UserDataAccessLogEntity> UserDataAccessLogs { get; set; } = null!;
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -22,6 +23,7 @@ public class PermissionDbContext(DbContextOptions<PermissionDbContext> options) 
 
 		modelBuilder.Entity<UserPermissionEntity>().ToTable(nameof(UserPermissions));
 		modelBuilder.Entity<UserPermissionAuditEntity>().ToTable(nameof(UserPermissionAudits));
+		modelBuilder.Entity<UserDataAccessLogEntity>().ToTable(nameof(UserDataAccessLogs));
 
 		// use encryption on properties marked with the Encrypted-Attribute
 		modelBuilder.UseEncryption<string>(StringConverter);
