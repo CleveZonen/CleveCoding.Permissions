@@ -5,7 +5,7 @@ namespace CleveCoding.Permissions.Models;
 /// <summary>
 /// High level definitions of actions.
 /// </summary>
-public enum UserActionType
+public enum UserActionType : short
 {
 	[Display(Name = "Overview", GroupName = "Data")]
 	ViewIndex = 100,
