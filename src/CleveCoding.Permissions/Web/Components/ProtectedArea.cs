@@ -1,5 +1,4 @@
-﻿using CleveCoding.Permissions.Models;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 
 namespace CleveCoding.Permissions.Web.Components;

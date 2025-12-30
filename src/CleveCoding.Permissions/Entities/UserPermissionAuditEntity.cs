@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using CleveCoding.Kernel.Attributes;
-using CleveCoding.Permissions.Models;
 
 namespace CleveCoding.Permissions.Entities;
 

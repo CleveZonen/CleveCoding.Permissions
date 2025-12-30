@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CleveCoding.Permissions.Models;
+namespace CleveCoding.Permissions;
 
 /// <summary>
 /// High level definitions of actions.

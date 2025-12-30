@@ -1,6 +1,4 @@
-﻿using CleveCoding.Permissions.Models;
-
-namespace CleveCoding.Permissions.Attributes;
+﻿namespace CleveCoding.Permissions.Attributes;
 
 /// <summary>
 /// Use the RequirePermission Attribute to protect on Component-level

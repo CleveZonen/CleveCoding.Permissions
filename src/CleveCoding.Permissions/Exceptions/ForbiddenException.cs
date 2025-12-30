@@ -1,6 +1,4 @@
-﻿using CleveCoding.Permissions.Models;
-
-namespace CleveCoding.Permissions.Exceptions;
+﻿namespace CleveCoding.Permissions.Exceptions;
 
 public class ForbiddenException : Exception
 {
