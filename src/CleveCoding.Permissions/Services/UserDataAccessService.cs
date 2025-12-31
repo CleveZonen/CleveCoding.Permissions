@@ -87,14 +87,28 @@ public class UserDataAccessService(PermissionDbContext Context, IUserAccessor Us
 	}
 
 	/// <inheritdoc/>
-	public Task AnonymizeOlderThanAsync(UserDataCategory dataCategory, DateTime date)
+	public async Task AnonymizeOlderThanAsync(UserDataCategory dataCategory, DateTime date)
 	{
-		throw new NotImplementedException();
+		var oldLogs = Context.UserDataAccessLogs
+			.Where(x => x.DataCategory == dataCategory && x.CreatedAt.Date < date.Date);
+
+		await foreach (var log in oldLogs.AsAsyncEnumerable())
+		{
+			log.UserId = "ANONYMIZED";
+			log.AccessedByUserId = "ANONYMIZED";
+		}
+
+		await Context.SaveChangesAsync();
 	}
 
 	/// <inheritdoc/>
-	public Task DeleteOlderThanAsync(UserDataCategory dataCategory, DateTime date)
+	public async Task DeleteOlderThanAsync(UserDataCategory dataCategory, DateTime date)
 	{
-		throw new NotImplementedException();
+		var oldLogs = Context.UserDataAccessLogs
+			.Where(x => x.DataCategory == dataCategory && x.CreatedAt.Date < date.Date);
+
+		Context.UserDataAccessLogs.RemoveRange(oldLogs);
+
+		await Context.SaveChangesAsync();
 	}
 }
