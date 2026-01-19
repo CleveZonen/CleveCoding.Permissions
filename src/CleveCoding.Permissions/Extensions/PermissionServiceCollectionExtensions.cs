@@ -1,4 +1,5 @@
-﻿using CleveCoding.Permissions.Behaviors;
+﻿using System.Reflection;
+using CleveCoding.Permissions.Behaviors;
 using CleveCoding.Permissions.Circuits;
 using CleveCoding.Permissions.Configurations;
 using CleveCoding.Permissions.Middleware;
@@ -93,10 +94,10 @@ public static class PermissionServiceCollectionExtensions
 		var results = new List<PermissionDescription>();
 		foreach (var type in assembly.DefinedTypes.Where(t => interfaceType.IsAssignableFrom(t) && !t.IsAbstract))
 		{
-			// create instance and read instance property
-			if (Activator.CreateInstance(type) is IRequirePermission instance && instance.RequiredPermission != null)
+			var prop = type.GetProperty(nameof(IRequirePermission.RequiredPermission), BindingFlags.Public | BindingFlags.Static);
+			if (prop?.GetValue(null) is PermissionDescription permission)
 			{
-				results.Add(instance.RequiredPermission);
+				results.Add(permission);
 			}
 		}
 

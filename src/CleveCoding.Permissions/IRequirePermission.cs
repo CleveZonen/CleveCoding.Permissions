@@ -13,5 +13,5 @@ public interface IRequirePermission
 	/// Defines which permission is nessary to
 	/// access this resource.
 	/// </summary>
-	PermissionDescription RequiredPermission { get; }
+	static abstract PermissionDescription RequiredPermission { get; }
 }

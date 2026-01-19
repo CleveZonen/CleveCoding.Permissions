@@ -20,12 +20,13 @@ public class VerifyPermissionBehavior<TRequest, TResponse>(IPermissionEvaluator 
 {
 	public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
 	{
-		if (!permissionEvaluator.HasPermission(request.RequiredPermission))
+		var permission = TRequest.RequiredPermission;
+		if (!permissionEvaluator.HasPermission(permission))
 		{
-			throw new ForbiddenException()
+			throw new ForbiddenException
 			{
-				Resource = request.RequiredPermission.Resource,
-				Action = request.RequiredPermission.Action
+				Resource = permission.Resource,
+				Action = permission.Action
 			};
 		}
 

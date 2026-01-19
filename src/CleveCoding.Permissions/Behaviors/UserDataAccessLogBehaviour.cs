@@ -6,18 +6,15 @@ namespace CleveCoding.Permissions.Behaviors;
 
 public sealed class UserDataAccessLogBehaviour<TRequest, TResponse>(IUserDataAccessService userDataAccessService)
 	: IPipelineBehavior<TRequest, TResponse>
-		where TRequest : IRequest<TResponse>
+		where TRequest : IRequest<TResponse>, IRequirePermission
 		where TResponse : Result
 {
 	public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
 	{
 		var response = await next(cancellationToken);
 
-		if (request is not IRequirePermission permissionRequest)
-			return response;
-
 		// Only log if the permission involves personal data and the action is relevant.
-		var permission = permissionRequest.RequiredPermission;
+		var permission = TRequest.RequiredPermission;
 		if (!permission.ContainsPersonalData ||
 			permission.Action is not UserActionType.ViewDetails
 								and not UserActionType.ViewIndex

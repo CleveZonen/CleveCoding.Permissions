@@ -7,7 +7,7 @@ namespace CleveCoding.PermissionsApp.Features.Mock;
 /// </summary>
 public class GetMockDetailsByIdRequest : IRequirePermission
 {
-	public PermissionDescription RequiredPermission => new()
+	public static PermissionDescription RequiredPermission => new()
 	{
 		Resource = nameof(Mock),
 		Action = UserActionType.ViewDetails,

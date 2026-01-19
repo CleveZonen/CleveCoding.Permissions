@@ -5,9 +5,9 @@ namespace CleveCoding.PermissionsApp.Features.Item;
 /// <summary>
 /// Example Request implementing IRequirePermission.
 /// </summary>
-public class GetItemDetailsByIdRequest : IRequirePermission
+public class GetItemDetailsByIdRequest(int Id) : IRequirePermission
 {
-	public PermissionDescription RequiredPermission => new()
+	public static PermissionDescription RequiredPermission => new()
 	{
 		Resource = nameof(Item),
 		Action = UserActionType.ViewDetails,
