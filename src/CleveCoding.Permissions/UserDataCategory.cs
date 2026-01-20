@@ -38,5 +38,8 @@ public enum UserDataCategory : byte
 	SickDays = 90,
 
 	[Display(Name = "Nevenbetrekkingen")]
-	Sidejobs = 100
+	Sidejobs = 100,
+
+	[Display(Name = "Geclassificeerd")]
+	Classified = 200
 }
