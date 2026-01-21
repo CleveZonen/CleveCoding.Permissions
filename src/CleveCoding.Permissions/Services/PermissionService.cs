@@ -173,65 +173,70 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
 
 		await using var transaction = await Context.Database.BeginTransactionAsync();
 
-		var existing = await Context.UserPermissions.FirstOrDefaultAsync(x =>
+		try
+		{
+			var existing = await Context.UserPermissions.FirstOrDefaultAsync(x =>
 			x.UserId == userId &&
 			x.Resource == permission.Resource &&
 			x.Action == permission.Action
 		);
 
-		// new permission.
-		if (existing == null)
-		{
-			await Context.UserPermissions.AddAsync(new UserPermissionEntity
+			// new permission.
+			if (existing == null)
 			{
-				UserId = userId,
-				Resource = permission.Resource,
-				Action = permission.Action,
-				HasAccess = newValue,
-				CreatedAt = now,
-				CreatedBy = actor
-			});
-			await Context.UserPermissionAudits.AddAsync(new UserPermissionAuditEntity
+				await Context.UserPermissions.AddAsync(new UserPermissionEntity
+				{
+					UserId = userId,
+					Resource = permission.Resource,
+					Action = permission.Action,
+					HasAccess = newValue,
+					CreatedAt = now,
+					CreatedBy = actor
+				});
+				await Context.UserPermissionAudits.AddAsync(new UserPermissionAuditEntity
+				{
+					UserId = userId,
+					Resource = permission.Resource,
+					Action = permission.Action,
+					OldValue = !newValue,
+					CreatedAt = now,
+					CreatedBy = actor
+				});
+			}
+			// change permission.
+			else
 			{
-				UserId = userId,
-				Resource = permission.Resource,
-				Action = permission.Action,
-				OldValue = !newValue,
-				CreatedAt = now,
-				CreatedBy = actor
-			});
+				Context.UserPermissions.Remove(existing);
+
+				var updated = new UserPermissionEntity
+				{
+					UserId = userId,
+					Resource = existing.Resource,
+					Action = existing.Action,
+					HasAccess = newValue,
+					CreatedAt = now,
+					CreatedBy = actor
+				};
+
+				await Context.UserPermissions.AddAsync(updated);
+				await Context.UserPermissionAudits.AddAsync(new UserPermissionAuditEntity
+				{
+					UserId = userId,
+					Resource = updated.Resource,
+					Action = updated.Action,
+					OldValue = existing.HasAccess,
+					CreatedAt = now,
+					CreatedBy = actor
+				});
+			}
 
 			await Context.SaveChangesAsync();
 			await transaction.CommitAsync();
 		}
-		// change permission.
-		else
+		catch
 		{
-			Context.UserPermissions.Remove(existing);
-
-			var updated = new UserPermissionEntity
-			{
-				UserId = userId,
-				Resource = existing.Resource,
-				Action = existing.Action,
-				HasAccess = newValue,
-				CreatedAt = now,
-				CreatedBy = actor
-			};
-
-			await Context.UserPermissions.AddAsync(updated);
-			await Context.UserPermissionAudits.AddAsync(new UserPermissionAuditEntity
-			{
-				UserId = userId,
-				Resource = updated.Resource,
-				Action = updated.Action,
-				OldValue = existing.HasAccess,
-				CreatedAt = now,
-				CreatedBy = actor
-			});
-
-			await Context.SaveChangesAsync();
-			await transaction.CommitAsync();
+			await transaction.RollbackAsync();
+			throw;
 		}
 
 		// invalidate cache
@@ -248,66 +253,74 @@ public class PermissionService(PermissionDbContext Context, PermissionCache Perm
 
 		await using var transaction = await Context.Database.BeginTransactionAsync();
 
-		var existing = await Context.UserPermissions.FirstOrDefaultAsync(x =>
+		try
+		{
+			var existing = await Context.UserPermissions.FirstOrDefaultAsync(x =>
 			x.UserId == null &&
 			x.RoleId == roleId &&
 			x.Resource == permission.Resource &&
 			x.Action == permission.Action
 		);
 
-		// new permission.
-		if (existing == null)
-		{
-			await Context.UserPermissions.AddAsync(new UserPermissionEntity
+			// new permission.
+			if (existing == null)
 			{
-				RoleId = roleId,
-				Resource = permission.Resource,
-				Action = permission.Action,
-				HasAccess = newValue,
-				CreatedAt = now,
-				CreatedBy = actor
-			});
-			await Context.UserPermissionAudits.AddAsync(new UserPermissionAuditEntity
-			{
-				RoleId = roleId,
-				Resource = permission.Resource,
-				Action = permission.Action,
-				OldValue = false,
-				CreatedAt = now,
-				CreatedBy = actor
-			});
+				await Context.UserPermissions.AddAsync(new UserPermissionEntity
+				{
+					RoleId = roleId,
+					Resource = permission.Resource,
+					Action = permission.Action,
+					HasAccess = newValue,
+					CreatedAt = now,
+					CreatedBy = actor
+				});
+				await Context.UserPermissionAudits.AddAsync(new UserPermissionAuditEntity
+				{
+					RoleId = roleId,
+					Resource = permission.Resource,
+					Action = permission.Action,
+					OldValue = false,
+					CreatedAt = now,
+					CreatedBy = actor
+				});
 
-			await Context.SaveChangesAsync();
-			await transaction.CommitAsync();
+				await Context.SaveChangesAsync();
+				await transaction.CommitAsync();
+			}
+			// change permission.
+			else if (existing.HasAccess != newValue)
+			{
+				Context.UserPermissions.Remove(existing);
+
+				var updated = new UserPermissionEntity
+				{
+					RoleId = existing.RoleId,
+					Resource = existing.Resource,
+					Action = existing.Action,
+					HasAccess = newValue,
+					CreatedAt = now,
+					CreatedBy = actor
+				};
+
+				await Context.UserPermissions.AddAsync(updated);
+				await Context.UserPermissionAudits.AddAsync(new UserPermissionAuditEntity
+				{
+					RoleId = roleId,
+					Resource = updated.Resource,
+					Action = updated.Action,
+					OldValue = existing.HasAccess,
+					CreatedAt = now,
+					CreatedBy = actor
+				});
+
+				await Context.SaveChangesAsync();
+				await transaction.CommitAsync();
+			}
 		}
-		// change permission.
-		else if (existing.HasAccess != newValue)
+		catch
 		{
-			Context.UserPermissions.Remove(existing);
-
-			var updated = new UserPermissionEntity
-			{
-				RoleId = existing.RoleId,
-				Resource = existing.Resource,
-				Action = existing.Action,
-				HasAccess = newValue,
-				CreatedAt = now,
-				CreatedBy = actor
-			};
-
-			await Context.UserPermissions.AddAsync(updated);
-			await Context.UserPermissionAudits.AddAsync(new UserPermissionAuditEntity
-			{
-				RoleId = roleId,
-				Resource = updated.Resource,
-				Action = updated.Action,
-				OldValue = existing.HasAccess,
-				CreatedAt = now,
-				CreatedBy = actor
-			});
-
-			await Context.SaveChangesAsync();
-			await transaction.CommitAsync();
+			await transaction.RollbackAsync();
+			throw;
 		}
 
 		// invalidate caches

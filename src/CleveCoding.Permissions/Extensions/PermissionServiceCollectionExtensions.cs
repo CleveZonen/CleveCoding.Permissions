@@ -32,9 +32,8 @@ public static class PermissionServiceCollectionExtensions
 
 		// register the DbContext for the permissions,
 		// EF Core is used for storage management.
-		services.AddDbContextFactory<PermissionDbContext>(options => options.UseSqlServer(permissionConfigurations.ConnectionString), ServiceLifetime.Transient);
 		services.AddDbContext<PermissionDbContext>(options => options.UseSqlServer(permissionConfigurations.ConnectionString,
-			sqlServerOptionsAction: sqlOptions => sqlOptions.MigrationsAssembly(typeof(PermissionDbContext).Assembly.FullName)), ServiceLifetime.Transient);
+			sqlServerOptionsAction: sqlOptions => sqlOptions.MigrationsAssembly(typeof(PermissionDbContext).Assembly.FullName)));
 
 		// register the UserAccessor and PermissionEvaluator.
 		services.AddHttpContextAccessor();
@@ -113,7 +112,6 @@ public static class PermissionServiceCollectionExtensions
 
 		// run the permissions migrations on startup.
 		using var scope = app.ApplicationServices.CreateScope();
-		await (await scope.ServiceProvider.GetRequiredService<IDbContextFactory<PermissionDbContext>>()
-			.CreateDbContextAsync()).MigrateAsync();
+		await scope.ServiceProvider.GetRequiredService<PermissionDbContext>().MigrateAsync();
 	}
 }
