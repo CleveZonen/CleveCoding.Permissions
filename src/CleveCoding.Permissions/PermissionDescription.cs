@@ -15,6 +15,11 @@ public sealed class PermissionDescription
 	public UserActionType Action { get; set; }
 
 	/// <summary>
+	/// Optional unique identifier for the action, which can be used for more granular permission checks.
+	/// </summary>
+	public string? ActionId { get; set; }
+
+	/// <summary>
 	/// Gets the the name of the resource the permission is associated with.
 	/// </summary>
 	public required string Resource { get; set; }

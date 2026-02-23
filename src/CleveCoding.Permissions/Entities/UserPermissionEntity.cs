@@ -30,6 +30,12 @@ public record UserPermissionEntity : CreationEntity<int>
 	public UserActionType Action { get; init; }
 
 	/// <summary>
+	/// Should be exact match with IRequirePermission.PermissionDescription.ActionId
+	/// </summary>
+	[Encrypted, Column(TypeName = "varchar(max)")]
+	public string? ActionId { get; set; }
+
+	/// <summary>
 	/// Indicates whether the user or role has access to the specified resource and action.
 	/// </summary>
 	public bool HasAccess { get; init; }

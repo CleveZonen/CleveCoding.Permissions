@@ -4,53 +4,49 @@
 
 @inject IEnumerable<PermissionDescription> PermissionDescriptions
 
-@if (Permissions.Any(x => x.Permissions.Any()))
+@if (Datasource.Any())
 {
-    <div class="permissions-view mb-5">
-        @if (!string.IsNullOrWhiteSpace(Group))
+    <div class="permissions-view mb-4">
+        @if (!string.IsNullOrWhiteSpace(Resource))
         {
-            <h3 class="h4">@Group</h3>
+            <h3 class="h4">@Resource</h3>
         }
         <table class="table table-striped">
             <thead class="table-dark">
                 <tr>
-                    <td>Resource</td>
-                    @foreach (var header in Headers)
-                    {
-                        <td>@header.GetName()</td>
-                    }
+                    <th>Feature</th>
+                    <th class="w-75">Beschrijving</th>
+                    <th>Permissie</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var selectedPermission in Permissions.Where(x => x.Permissions.Any()))
+                @foreach (var selectedPermission in Datasource)
                 {
                     <tr>
-                        <td class="w-25">
-                            @selectedPermission.Resource
+                        <td>
+                            <span class="d-block">
+                                @selectedPermission.Action.GetName()
+                            </span>
+                            @if (!string.IsNullOrWhiteSpace(selectedPermission.ActionId))
+                            {
+                                <small class="text-muted">
+                                    @selectedPermission.ActionId
+                                </small>
+                            }
                         </td>
-                        @foreach (var header in Headers)
-                        {
-                            var permission = selectedPermission.Get(header);
-                            if (permission is not null)
-                            {
-                                var description = @GetPermissionDescription(permission.Resource, permission.Action);
-                                <td>
-                                    <div class="form-check form-switch d-inline-block p-0 m-0">
-                                        <input @bind="permission.HasAccess" @oninput="x => OnChanged(x, permission)" class="form-check-input m-0 mt-2" type="checkbox" />
-                                    </div>
-                                    @if (!string.IsNullOrWhiteSpace(description))
-                                    {
-                                        <span class="tooltip-icon">
-                                            <span>@description</span>
-                                        </span>
-                                    }
-                                </td>
-                            }
-                            else
-                            {
-                                <td><small>n/a</small></td>
-                            }
-                        }
+                        <td>
+                            <span class="d-block">
+                                @selectedPermission.Description
+                            </span>
+                        </td>
+                        <td>
+                            <div class="form-check form-switch d-inline-block p-0 m-0">
+                                <input @bind="selectedPermission.HasAccess"
+                                       @oninput="x => OnChanged(x, selectedPermission)"
+                                       class="form-check-input m-0 mt-2"
+                                       type="checkbox" />
+                            </div>
+                        </td>
                     </tr>
                 }
             </tbody>
@@ -61,20 +57,12 @@
 @code {
 
     [Parameter]
-    public string? Group { get; set; }
+    public string? Resource { get; set; }
 
     [Parameter, EditorRequired]
-    public IEnumerable<UserActionType> Headers { get; set; } = [];
-
-    [Parameter, EditorRequired]
-    public IEnumerable<PermissionSet> Datasource { get; set; } = [];
+    public IEnumerable<UserPermission> Datasource { get; set; } = [];
 
     [Parameter, EditorRequired]
     public Func<ChangeEventArgs, UserPermission, Task> OnChanged { get; set; } = null!;
-
-    protected IEnumerable<PermissionSet> Permissions => string.IsNullOrWhiteSpace(Group) ? Datasource : Datasource.Select(x => x.CopyFor(Group));
-
-    private string? GetPermissionDescription(string resource, UserActionType action)
-        => PermissionDescriptions.FirstOrDefault(x => x.Resource.Equals(resource, StringComparison.CurrentCultureIgnoreCase) && x.Action == action)?.Description;
 
 }

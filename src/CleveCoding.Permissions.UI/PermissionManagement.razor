@@ -54,18 +54,22 @@
         {
             <p>Manage the permissions for <strong>@(SelectedUser?.DisplayName ?? SelectedRole)</strong>.</p>
         }
-        <PermissionsView Group="Data"
-                         Headers="_headers.Where(x => x.EqualsGroup(UserActionType.ViewIndex))"
-                         Datasource="_selectedPermissions"
-                         OnChanged="OnPermissionChangedAsync" />
-        <PermissionsView Group="I/O"
-                         Headers="_headers.Where(x => x.EqualsGroup(UserActionType.Download))"
-                         Datasource="_selectedPermissions"
-                         OnChanged="OnPermissionChangedAsync" />
-        <PermissionsView Group="Reviews"
-                         Headers="_headers.Where(x => x.EqualsGroup(UserActionType.Assign))"
-                         Datasource="_selectedPermissions"
-                         OnChanged="OnPermissionChangedAsync" />
+        <div class="bg-light rounded p-2 mb-3">
+            <span class="text-muted">Filter</span>
+            <select @bind="_resourceFilter" @oninput="OnChanged" class="form-control form-control-solid">
+                <option>- show all -</option>
+                @foreach (var resource in _resources)
+                {
+                    <option value="@resource">@resource</option>
+                }
+            </select>
+        </div>
+        @foreach (var resource in _viewingResources)
+        {
+            <PermissionsView Datasource="_selectedPermissions.Where(x => x.Resource.Equals(resource, StringComparison.CurrentCultureIgnoreCase))"
+                             OnChanged="OnPermissionChangedAsync"
+                             Resource="@resource" />
+        }
     </div>
     @if (_audits is not null && _audits.Any())
     {
@@ -82,14 +86,14 @@
 @code {
 
     /// <summary>
-    /// The callback when an changed permission 
+    /// The callback when an changed permission
     ///  has been succesfully saved.
     /// </summary>
     [Parameter]
     public EventCallback<bool> OnSaved { get; set; }
 
     /// <summary>
-    /// The callback when an error occured attempting 
+    /// The callback when an error occured attempting
     ///  to save an changed permission.
     /// </summary>
     [Parameter]
@@ -122,11 +126,23 @@
     private IEnumerable<string>? _roles;
     private IEnumerable<UserPrincipal>? _users;
     private IEnumerable<UserPermissionAudit>? _audits;
+    
     private string? _filter;
     private ViewMode _currentView;
     private bool _isAuditOpen = true;
-    private IEnumerable<UserActionType> _headers = [];
-    private IEnumerable<PermissionSet> _selectedPermissions = [];
+    private IList<UserPermission> _selectedPermissions = [];
+
+    private string? _resourceFilter;
+    private IEnumerable<string> _resources => PermissionDescriptions
+                                                    .Select(x => x.Resource)
+                                                    .Distinct()
+                                                    .OrderBy(x => x);
+    private IEnumerable<string> _viewingResources => (string.IsNullOrWhiteSpace(_resourceFilter))
+                                                ? PermissionDescriptions
+                                                    .Select(x => x.Resource)
+                                                    .Distinct()
+                                                    .OrderBy(x => x)
+                                                : [_resourceFilter];
 
     protected override void OnInitialized()
     {
@@ -185,21 +201,14 @@
         SelectedRole = role;
         _audits = await PermissionService.GetAuditsForRoleAsync(SelectedRole);
 
-        var registeredPermissions = PermissionDescriptions.Select(x => new UserPermission
+        _selectedPermissions = PermissionDescriptions.Select(x => new UserPermission
         {
             RoleId = role,
             Resource = x.Resource,
-            Action = x.Action
-        });
-
-        _headers = registeredPermissions.Select(x => x.Action).Distinct().OrderBy(x => (int)x);
-        _selectedPermissions = registeredPermissions
-                                    .GroupBy(x => x.Resource)
-                                    .Select(x => new PermissionSet
-                                    {
-                                        Resource = x.Key,
-                                        Permissions = x
-                                    }).ToList();
+            Action = x.Action,
+            ActionId = x.ActionId,
+            Description = x.Description
+        }).OrderBy(x => (short)x.Action).ToList();
 
         var rolePermissions = await PermissionService.GetRolePermissionsAsync(SelectedRole);
         if (rolePermissions is null || !rolePermissions.Any())
@@ -210,9 +219,9 @@
 
         foreach (var permission in rolePermissions)
         {
-            var foundPermission = _selectedPermissions.SelectMany(x => x.Permissions)
-                                                        .FirstOrDefault(x => x.Resource.Equals(permission.Resource, StringComparison.CurrentCultureIgnoreCase) &&
-                                                                                x.Action == permission.Action);
+            var foundPermission = _selectedPermissions.FirstOrDefault(x => x.Resource.Equals(permission.Resource, StringComparison.CurrentCultureIgnoreCase) &&
+                                                                            x.ActionId?.Equals(permission.ActionId, StringComparison.CurrentCultureIgnoreCase) == true &&
+                                                                            x.Action == permission.Action);
             if (foundPermission is null)
             {
                 continue;
@@ -229,21 +238,14 @@
         SelectedUser = user;
         _audits = await PermissionService.GetAuditsForUserAsync(SelectedUser.SamAccountName);
 
-        var registeredPermissions = PermissionDescriptions.Select(x => new UserPermission
+        _selectedPermissions = PermissionDescriptions.Select(x => new UserPermission
         {
             UserId = SelectedUser.SamAccountName,
             Resource = x.Resource,
-            Action = x.Action
-        });
-
-        _headers = registeredPermissions.Select(x => x.Action).Distinct().OrderBy(x => (int)x);
-        _selectedPermissions = registeredPermissions
-                                    .GroupBy(x => x.Resource)
-                                    .Select(x => new PermissionSet
-                                    {
-                                        Resource = x.Key,
-                                        Permissions = x
-                                    }).ToList();
+            Action = x.Action,
+            ActionId = x.ActionId,
+            Description = x.Description
+        }).OrderBy(x => (short)x.Action).ToList();
 
         var userPermissions = await PermissionService.GetUserPermissionsAsync(SelectedUser.SamAccountName);
         if (userPermissions is null || !userPermissions.Any())
@@ -254,9 +256,9 @@
 
         foreach (var permission in userPermissions)
         {
-            var foundPermission = _selectedPermissions.SelectMany(x => x.Permissions)
-                                                        .FirstOrDefault(x => x.Resource.Equals(permission.Resource, StringComparison.CurrentCultureIgnoreCase) &&
-                                                                                x.Action == permission.Action);
+            var foundPermission = _selectedPermissions.FirstOrDefault(x => x.Resource.Equals(permission.Resource, StringComparison.CurrentCultureIgnoreCase) &&
+                                                                            x.ActionId == permission.ActionId &&
+                                                                            x.Action == permission.Action);
             if (foundPermission is null)
             {
                 continue;
@@ -273,7 +275,6 @@
         _currentView = view;
 
         // reset.
-        _headers = [];
         _selectedPermissions = [];
         _filter = null;
         SelectedUser = null;
@@ -286,6 +287,13 @@
 
     private string GetSelectedCssClass(string role)
         => SelectedRole?.Equals(role) == true ? "selected" : "";
+
+    private void OnChanged(ChangeEventArgs args)
+    {
+        _resourceFilter = args.Value?.ToString();
+
+        StateHasChanged();
+    }
 
     /// <summary>
     /// Helper enum for the screen.

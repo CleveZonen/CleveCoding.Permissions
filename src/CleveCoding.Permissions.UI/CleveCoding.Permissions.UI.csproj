@@ -10,7 +10,7 @@
 		<PackageProjectUrl>https://github.com/CleveZonen/CleveCoding.Permissions</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/CleveZonen/CleveCoding.Permissions</RepositoryUrl>
 		<AssemblyVersion>1.0.1.0</AssemblyVersion>
-		<Version>1.0.1</Version>
+		<Version>1.0.2</Version>
 	</PropertyGroup>
 
 	<ItemGroup>

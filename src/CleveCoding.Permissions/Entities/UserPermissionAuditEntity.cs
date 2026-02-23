@@ -37,6 +37,12 @@ public record UserPermissionAuditEntity
 	public UserActionType Action { get; init; }
 
 	/// <summary>
+	/// Should be exact match with IRequirePermission.PermissionDescription.ActionId
+	/// </summary>
+	[Encrypted, Column(TypeName = "varchar(max)")]
+	public string? ActionId { get; set; }
+
+	/// <summary>
 	/// Old value of the HasAccess-property.
 	/// </summary>
 	public bool OldValue { get; init; }

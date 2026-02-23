@@ -1,5 +1,4 @@
-﻿using CleveCoding.Kernel;
-using CleveCoding.Permissions.Services;
+﻿using CleveCoding.Permissions.Services;
 using MediatR;
 
 namespace CleveCoding.Permissions.Behaviors;
@@ -7,7 +6,7 @@ namespace CleveCoding.Permissions.Behaviors;
 public sealed class UserDataAccessLogBehaviour<TRequest, TResponse>(IUserDataAccessService userDataAccessService)
 	: IPipelineBehavior<TRequest, TResponse>
 		where TRequest : IRequest<TResponse>, IRequirePermission
-		where TResponse : Result
+		where TResponse : IUserDataAccessedResponse
 {
 	public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
 	{
@@ -24,12 +23,8 @@ public sealed class UserDataAccessLogBehaviour<TRequest, TResponse>(IUserDataAcc
 			return response;
 		}
 
-		// Ensure the request contains user context.
-		if (request is not IUserDataAccessScopedRequest employeeRequest)
-			return response;
-
 		// Register the data access.
-		await userDataAccessService.RegisterAsync(employeeRequest.UserId, permission, cancellationToken);
+		await userDataAccessService.RegisterAsync(response.UserId, permission, cancellationToken);
 
 		return response;
 	}

@@ -85,13 +85,14 @@ public class PermissionService(IDbContextFactory<PermissionDbContext> Factory, P
 
 		var effective = perms
 			.OrderByDescending(p => p.UserId != null) // user overrides role
-			.GroupBy(p => new { p.Resource, p.Action })
+			.GroupBy(p => new { p.Resource, p.Action, p.ActionId })
 			.Select(g => g.First())
 			.Select(x => new UserPermission
 			{
 				UserId = x.UserId,
 				RoleId = x.RoleId,
 				Action = x.Action,
+				ActionId = x.ActionId,
 				Resource = x.Resource,
 				HasAccess = x.HasAccess,
 				CreatedAt = x.CreatedAt,
@@ -114,13 +115,14 @@ public class PermissionService(IDbContextFactory<PermissionDbContext> Factory, P
 
 		var effective = perms
 			.OrderByDescending(p => p.UserId != null) // user overrides role
-			.GroupBy(p => new { p.Resource, p.Action })
+			.GroupBy(p => new { p.Resource, p.Action, p.ActionId })
 			.Select(g => g.First())
 			.Select(x => new UserPermission
 			{
 				UserId = x.UserId,
 				RoleId = x.RoleId,
 				Action = x.Action,
+				ActionId = x.ActionId,
 				Resource = x.Resource,
 				HasAccess = x.HasAccess,
 				CreatedAt = x.CreatedAt,
@@ -151,13 +153,14 @@ public class PermissionService(IDbContextFactory<PermissionDbContext> Factory, P
 			.ToListAsync();
 
 		var effective = perms
-			.GroupBy(p => new { p.Resource, p.Action })
+			.GroupBy(p => new { p.Resource, p.Action, p.ActionId })
 			.Select(g => g.First())
 			.Select(x => new UserPermission
 			{
 				UserId = x.UserId,
 				RoleId = x.RoleId,
 				Action = x.Action,
+				ActionId = x.ActionId,
 				Resource = x.Resource,
 				HasAccess = x.HasAccess,
 				CreatedAt = x.CreatedAt,
@@ -186,7 +189,8 @@ public class PermissionService(IDbContextFactory<PermissionDbContext> Factory, P
 			var existing = await context.UserPermissions.FirstOrDefaultAsync(x =>
 			x.UserId == userId &&
 			x.Resource == permission.Resource &&
-			x.Action == permission.Action
+			x.Action == permission.Action &&
+			x.ActionId == permission.ActionId
 		);
 
 			// new permission.
@@ -197,6 +201,7 @@ public class PermissionService(IDbContextFactory<PermissionDbContext> Factory, P
 					UserId = userId,
 					Resource = permission.Resource,
 					Action = permission.Action,
+					ActionId = permission.ActionId,
 					HasAccess = newValue,
 					CreatedAt = now,
 					CreatedBy = actor
@@ -221,6 +226,7 @@ public class PermissionService(IDbContextFactory<PermissionDbContext> Factory, P
 					UserId = userId,
 					Resource = existing.Resource,
 					Action = existing.Action,
+					ActionId = existing.ActionId,
 					HasAccess = newValue,
 					CreatedAt = now,
 					CreatedBy = actor
@@ -232,6 +238,7 @@ public class PermissionService(IDbContextFactory<PermissionDbContext> Factory, P
 					UserId = userId,
 					Resource = updated.Resource,
 					Action = updated.Action,
+					ActionId = updated.ActionId,
 					OldValue = existing.HasAccess,
 					CreatedAt = now,
 					CreatedBy = actor
@@ -269,7 +276,8 @@ public class PermissionService(IDbContextFactory<PermissionDbContext> Factory, P
 			x.UserId == null &&
 			x.RoleId == roleId &&
 			x.Resource == permission.Resource &&
-			x.Action == permission.Action
+			x.Action == permission.Action &&
+			x.ActionId == permission.ActionId
 		);
 
 			// new permission.
@@ -280,6 +288,7 @@ public class PermissionService(IDbContextFactory<PermissionDbContext> Factory, P
 					RoleId = roleId,
 					Resource = permission.Resource,
 					Action = permission.Action,
+					ActionId = permission.ActionId,
 					HasAccess = newValue,
 					CreatedAt = now,
 					CreatedBy = actor
@@ -289,6 +298,7 @@ public class PermissionService(IDbContextFactory<PermissionDbContext> Factory, P
 					RoleId = roleId,
 					Resource = permission.Resource,
 					Action = permission.Action,
+					ActionId = permission.ActionId,
 					OldValue = false,
 					CreatedAt = now,
 					CreatedBy = actor
@@ -307,6 +317,7 @@ public class PermissionService(IDbContextFactory<PermissionDbContext> Factory, P
 					RoleId = existing.RoleId,
 					Resource = existing.Resource,
 					Action = existing.Action,
+					ActionId = existing.ActionId,
 					HasAccess = newValue,
 					CreatedAt = now,
 					CreatedBy = actor
@@ -318,6 +329,7 @@ public class PermissionService(IDbContextFactory<PermissionDbContext> Factory, P
 					RoleId = roleId,
 					Resource = updated.Resource,
 					Action = updated.Action,
+					ActionId = updated.ActionId,
 					OldValue = existing.HasAccess,
 					CreatedAt = now,
 					CreatedBy = actor

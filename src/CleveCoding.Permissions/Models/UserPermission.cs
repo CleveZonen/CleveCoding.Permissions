@@ -19,13 +19,24 @@ public record UserPermission
 
 	/// <summary>
 	/// Gets the action that gets performed.
+	/// Should be exact match with IRequirePermission.PermissionDescription.Action
 	/// </summary>
 	public UserActionType Action { get; set; }
+
+	/// <summary>
+	/// Should be exact match with IRequirePermission.PermissionDescription.ActionId
+	/// </summary>
+	public string? ActionId { get; set; }
 
 	/// <summary>
 	/// Indicates whether the user or role has access to the specified resource and action.
 	/// </summary>
 	public bool HasAccess { get; set; }
+
+	/// <summary>
+	/// Description of the permission.
+	/// </summary>
+	public string? Description { get; set; }
 
 	public DateTime CreatedAt { get; set; }
 	public string CreatedBy { get; set; } = null!;
