@@ -26,7 +26,8 @@ public class VerifyPermissionBehavior<TRequest, TResponse>(IPermissionEvaluator 
 			throw new ForbiddenException
 			{
 				Resource = permission.Resource,
-				Action = permission.Action
+				Action = permission.Action,
+				ActionId = permission.ActionId
 			};
 		}
 

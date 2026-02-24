@@ -33,10 +33,10 @@ public record UserAccount : IUserAccount, IUserPermissions
 		=> Roles is not null && Roles.Any() && roles.Any(x => Roles.Contains(x.Id));
 
 	/// <inheritdoc/>
-	public bool HasPermission(string resource, UserActionType action)
-		=> Permissions?.Any(p => p.Resource == resource && p.Action == action && p.HasAccess) ?? false;
+	public bool HasPermission(string resource, UserActionType action, string? actionId)
+		=> Permissions?.Any(p => p.Resource == resource && p.Action == action && p.ActionId == actionId && p.HasAccess) ?? false;
 
 	/// <inheritdoc/>
 	public bool HasPermission(PermissionDescription permissionDescription)
-		=> HasPermission(permissionDescription.Resource, permissionDescription.Action);
+		=> HasPermission(permissionDescription.Resource, permissionDescription.Action, permissionDescription.ActionId);
 }

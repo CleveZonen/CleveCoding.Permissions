@@ -6,6 +6,7 @@ public class ForbiddenException : Exception
 
 	public string? Resource { get; set; }
 	public UserActionType? Action { get; set; }
+	public string? ActionId { get; set; }
 
 	public ForbiddenException() : base(DefaultErrorMessage) { }
 

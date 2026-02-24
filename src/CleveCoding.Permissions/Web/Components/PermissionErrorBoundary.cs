@@ -41,7 +41,7 @@ public class PermissionErrorBoundary : ErrorBoundary
 			if (!string.IsNullOrWhiteSpace(forbidden.Resource))
 			{
 				builder.OpenElement(7, "span");
-				builder.AddContent(8, $"Resource: {forbidden.Resource} -- Action: {forbidden.Action}");
+				builder.AddContent(8, $"Resource: {forbidden.Resource} -- Action: {forbidden.Action} -- ActionId: {forbidden.ActionId}");
 				builder.CloseElement();
 			}
 

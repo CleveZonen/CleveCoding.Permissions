@@ -211,6 +211,7 @@ public class PermissionService(IDbContextFactory<PermissionDbContext> Factory, P
 					UserId = userId,
 					Resource = permission.Resource,
 					Action = permission.Action,
+					ActionId = permission.ActionId,
 					OldValue = !newValue,
 					CreatedAt = now,
 					CreatedBy = actor
@@ -369,6 +370,7 @@ public class PermissionService(IDbContextFactory<PermissionDbContext> Factory, P
 				RoleId = x.RoleId,
 				Resource = x.Resource,
 				Action = x.Action,
+				ActionId = x.ActionId,
 				OldValue = x.OldValue,
 				CreatedAt = x.CreatedAt,
 				CreatedBy = x.CreatedBy,
@@ -391,6 +393,7 @@ public class PermissionService(IDbContextFactory<PermissionDbContext> Factory, P
 				RoleId = x.RoleId,
 				Resource = x.Resource,
 				Action = x.Action,
+				ActionId = x.ActionId,
 				OldValue = x.OldValue,
 				CreatedAt = x.CreatedAt,
 				CreatedBy = x.CreatedBy,

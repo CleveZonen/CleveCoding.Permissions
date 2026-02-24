@@ -13,7 +13,7 @@ public interface IUserPermissions
 	/// <param name="resource"></param>
 	/// <param name="action"></param>
 	/// <returns></returns>
-	bool HasPermission(string resource, UserActionType action);
+	bool HasPermission(string resource, UserActionType action, string? actionId);
 
 	/// <summary>
 	/// Verify if the the user has permission for the given permission description.

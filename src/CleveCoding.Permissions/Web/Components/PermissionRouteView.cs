@@ -43,6 +43,7 @@ public class PermissionRouteView : RouteView
 			hasAccess = attrs.Any(attr => PermissionEvaluator.HasPermission(new PermissionDescription
 			{
 				Action = attr.Action,
+				ActionId = attr.ActionId,
 				Resource = attr.Resource,
 				Description = string.Empty,
 			}));

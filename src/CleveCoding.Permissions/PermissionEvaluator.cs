@@ -33,7 +33,8 @@ public class PermissionEvaluator(IUserAccessor accessor) : IPermissionEvaluator
 			?? throw new ForbiddenException("Unauthorized user access - unkown user.")
 			{
 				Resource = permissionDescription.Resource,
-				Action = permissionDescription.Action
+				Action = permissionDescription.Action,
+				ActionId = permissionDescription.ActionId
 			};
 
 		// skip check if the user is admin.

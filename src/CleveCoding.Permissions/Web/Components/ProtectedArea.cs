@@ -24,6 +24,12 @@ public class ProtectedArea : ComponentBase
 	public UserActionType Action { get; set; }
 
 	/// <summary>
+	/// The permission action id to check.
+	/// </summary>
+	[Parameter]
+	public string? ActionId { get; set; }
+
+	/// <summary>
 	/// Content to render when authorized.
 	/// </summary>
 	[Parameter]
@@ -50,6 +56,7 @@ public class ProtectedArea : ComponentBase
 		IsAuthorized = PermissionEvaluator.HasPermission(new PermissionDescription
 		{
 			Action = Action,
+			ActionId = ActionId,
 			Resource = Resource,
 			Description = string.Empty,
 		});

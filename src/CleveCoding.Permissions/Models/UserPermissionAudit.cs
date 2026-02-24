@@ -23,6 +23,11 @@ public record UserPermissionAudit
 	public UserActionType Action { get; init; }
 
 	/// <summary>
+	/// Should be exact match with IRequirePermission.PermissionDescription.ActionId
+	/// </summary>
+	public string? ActionId { get; set; }
+
+	/// <summary>
 	/// Old value of the HasAccess-property.
 	/// </summary>
 	public bool OldValue { get; init; }
