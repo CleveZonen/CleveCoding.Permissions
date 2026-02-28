@@ -27,17 +27,17 @@
                             <span class="d-block">
                                 @selectedPermission.Action.GetName()
                             </span>
+                        </td>
+                        <td>
+                            <span class="d-block">
+                                @selectedPermission.Description
+                            </span>
                             @if (!string.IsNullOrWhiteSpace(selectedPermission.ActionId))
                             {
                                 <small class="text-muted">
                                     @selectedPermission.ActionId
                                 </small>
                             }
-                        </td>
-                        <td>
-                            <span class="d-block">
-                                @selectedPermission.Description
-                            </span>
                         </td>
                         <td>
                             <div class="form-check form-switch d-inline-block p-0 m-0">
