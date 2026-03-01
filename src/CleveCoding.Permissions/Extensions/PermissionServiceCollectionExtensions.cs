@@ -43,10 +43,10 @@ public static class PermissionServiceCollectionExtensions
 
 		// register the Services.
 		services.AddMemoryCache();
-		services.AddScoped<PermissionCache>();
-		services.AddScoped<IUserLookupService, UserLookupService>();
-		services.AddScoped<IPermissionService, PermissionService>();
-		services.AddScoped<IUserDataAccessService, UserDataAccessService>();
+		services.AddTransient<PermissionCache>();
+		services.AddTransient<IUserLookupService, UserLookupService>();
+		services.AddTransient<IPermissionService, PermissionService>();
+		services.AddTransient<IUserDataAccessService, UserDataAccessService>();
 
 		// register the UserContextInitializer
 		// to populate the UserAccount with its permissions.
