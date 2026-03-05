@@ -57,7 +57,7 @@
         <div class="bg-light rounded p-2 mb-3">
             <span class="text-muted">Filter</span>
             <select @bind="_resourceFilter" @oninput="OnChanged" class="form-control form-control-solid">
-                <option>- show all -</option>
+                <option value="">- show all -</option>
                 @foreach (var resource in _resources)
                 {
                     <option value="@resource">@resource</option>
