@@ -43,6 +43,12 @@ public class PermissionEvaluator(IUserAccessor accessor) : IPermissionEvaluator
 			return true;
 		}
 
+		// not admin but required admin access = no permission!
+		if (permissionDescription.AdminAccessOnly)
+		{
+			return false;
+		}
+
 		// check the permission for the user.
 		return user.HasPermission(permissionDescription);
 	}

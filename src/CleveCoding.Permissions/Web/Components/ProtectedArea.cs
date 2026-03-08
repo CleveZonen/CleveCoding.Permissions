@@ -30,6 +30,12 @@ public class ProtectedArea : ComponentBase
 	public string? ActionId { get; set; }
 
 	/// <summary>
+	/// The permission description containing the resource, action and actionId.
+	/// </summary>
+	[Parameter]
+	public PermissionDescription? PermissionDescription { get; set; }
+
+	/// <summary>
 	/// Render only when the user is an admin.
 	/// </summary>
 	[Parameter]
@@ -75,13 +81,16 @@ public class ProtectedArea : ComponentBase
 			return;
 		}
 
-		IsAuthorized = PermissionEvaluator.HasPermission(new PermissionDescription
-		{
-			Action = Action,
-			ActionId = ActionId,
-			Resource = Resource,
-			Description = string.Empty,
-		});
+		IsAuthorized = PermissionEvaluator.HasPermission(PermissionDescription is not null
+			? PermissionDescription
+			: new PermissionDescription
+			{
+				Action = Action,
+				ActionId = ActionId,
+				Resource = Resource,
+				AdminAccessOnly = AdminOnlyAccess,
+				Description = string.Empty,
+			});
 	}
 
 	protected override void BuildRenderTree(RenderTreeBuilder builder)

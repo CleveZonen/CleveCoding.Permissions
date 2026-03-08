@@ -4,9 +4,6 @@
 /// Defines a permission set with
 /// the data categories coupled.
 /// </summary>
-/// <param name="Resource"></param>
-/// <param name="Action"></param>
-/// <param name="Description"></param>
 public sealed class PermissionDescription
 {
 	/// <summary>
@@ -22,12 +19,17 @@ public sealed class PermissionDescription
 	/// <summary>
 	/// Gets the the name of the resource the permission is associated with.
 	/// </summary>
-	public required string Resource { get; set; }
+	public string Resource { get; set; } = null!;
 
 	/// <summary>
 	/// Description of the permission.
 	/// </summary>
-	public required string Description { get; set; }
+	public string Description { get; set; } = null!;
+
+	/// <summary>
+	/// Permission only when the user is an admin.
+	/// </summary>
+	public bool AdminAccessOnly { get; set; }
 
 	/// <summary>
 	/// The User Data Categories associated with this permission.
