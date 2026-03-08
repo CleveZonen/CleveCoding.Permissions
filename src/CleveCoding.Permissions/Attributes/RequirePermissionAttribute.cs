@@ -8,9 +8,24 @@
 /// <param name="action"></param>
 /// <param name="actionId"></param>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public class RequirePermissionAttribute(string resource, UserActionType action, string? actionId) : Attribute
+public class RequirePermissionAttribute : Attribute
 {
-	public string Resource { get; } = resource;
-	public string? ActionId { get; } = actionId;
-	public UserActionType Action { get; } = action;
+	public string Resource { get; }
+	public string? ActionId { get; }
+	public UserActionType Action { get; }
+	public bool AdminOnlyAccess { get; set; }
+
+	public RequirePermissionAttribute(string resource, UserActionType action, string? actionId)
+	{
+		Resource = resource;
+		ActionId = actionId;
+		Action = action;
+	}
+
+	public RequirePermissionAttribute(bool adminOnlyAccess)
+	{
+		Resource = "";
+		Action = UserActionType.None;
+		AdminOnlyAccess = adminOnlyAccess;
+	}
 }

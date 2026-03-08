@@ -69,10 +69,12 @@ public class UserDataAccessService(PermissionDbContext Context, IUserAccessor Us
 	/// <inheritdoc/>
 	public async Task<IEnumerable<UserDataAccessLog>?> GetDataAccessLogsAsync(string userId, DateTime from, DateTime to)
 	{
-		return await Context.UserDataAccessLogs
-			.Where(x => x.UserId == userId && x.CreatedAt.Date >= from.Date && x.CreatedAt.Date <= to.Date)
+		return [.. (await Context.UserDataAccessLogs
+			.Where(x => x.CreatedAt.Date >= from.Date && x.CreatedAt.Date <= to.Date)
 			.OrderByDescending(x => x.CreatedAt)
 			.AsNoTracking()
+			.ToArrayAsync()) // materialize as UserId is encrypted
+			.Where(x => x.UserId.Trim().Equals(userId.Trim(), StringComparison.CurrentCultureIgnoreCase))
 			.Select(x => new UserDataAccessLog
 			{
 				Id = x.Id,
@@ -82,8 +84,7 @@ public class UserDataAccessService(PermissionDbContext Context, IUserAccessor Us
 				Action = x.Action,
 				DataCategory = x.DataCategory,
 				CreatedAt = x.CreatedAt
-			})
-			.ToListAsync();
+			})];
 	}
 
 	/// <inheritdoc/>
@@ -104,8 +105,9 @@ public class UserDataAccessService(PermissionDbContext Context, IUserAccessor Us
 	/// <inheritdoc/>
 	public async Task DeleteOlderThanAsync(UserDataCategory dataCategory, DateTime date)
 	{
-		var oldLogs = Context.UserDataAccessLogs
-			.Where(x => x.DataCategory == dataCategory && x.CreatedAt.Date < date.Date);
+		var oldLogs = await Context.UserDataAccessLogs
+			.Where(x => x.DataCategory == dataCategory && x.CreatedAt.Date < date.Date)
+			.ToArrayAsync();
 
 		Context.UserDataAccessLogs.RemoveRange(oldLogs);
 

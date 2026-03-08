@@ -60,8 +60,12 @@ public interface IPermissionService
 	Task<IEnumerable<UserPermissionAudit>?> GetAuditsForRoleAsync(string roleId);
 }
 
-public class PermissionService(IDbContextFactory<PermissionDbContext> Factory, PermissionCache PermissionCache, IUserAccessor UserAccessor, IUserLookupService UserLookupService)
-	: IPermissionService
+public class PermissionService(
+	IDbContextFactory<PermissionDbContext> Factory,
+	PermissionCache PermissionCache,
+	IUserAccessor UserAccessor,
+	IUserLookupService UserLookupService
+	) : IPermissionService
 {
 	/// <inheritdoc/>
 	public async Task<IEnumerable<UserPermission>?> GetUserPermissionsAsync(IUserAccount user)
@@ -76,11 +80,8 @@ public class PermissionService(IDbContextFactory<PermissionDbContext> Factory, P
 
 		user.Roles ??= [];
 
-		var roles = user.Roles;
-		var account = user.AccountName;
-
 		var perms = await context.UserPermissions
-			.Where(p => p.UserId == account || (roles.Count() > 0 && roles.Contains(p.RoleId)))
+			.Where(p => p.UserId == user.AccountName || (user.Roles.Count() > 0 && user.Roles.Contains(p.RoleId)))
 			.ToListAsync();
 
 		var effective = perms

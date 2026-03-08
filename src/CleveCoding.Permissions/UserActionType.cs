@@ -7,6 +7,9 @@ namespace CleveCoding.Permissions;
 /// </summary>
 public enum UserActionType : short
 {
+	[Display(Name = "Geen")]
+	None = 0,
+
 	[Display(Name = "Overview", GroupName = "Data")]
 	ViewIndex = 100,
 

@@ -14,13 +14,13 @@ public class ProtectedArea : ComponentBase
 	/// <summary>
 	/// The permission resource to check.
 	/// </summary>
-	[Parameter, EditorRequired]
+	[Parameter]
 	public string Resource { get; set; } = null!;
 
 	/// <summary>
 	/// The permission action to check.
 	/// </summary>
-	[Parameter, EditorRequired]
+	[Parameter]
 	public UserActionType Action { get; set; }
 
 	/// <summary>
@@ -28,6 +28,12 @@ public class ProtectedArea : ComponentBase
 	/// </summary>
 	[Parameter]
 	public string? ActionId { get; set; }
+
+	/// <summary>
+	/// Render only when the user is an admin.
+	/// </summary>
+	[Parameter]
+	public bool AdminOnlyAccess { get; set; }
 
 	/// <summary>
 	/// Content to render when authorized.
@@ -48,6 +54,22 @@ public class ProtectedArea : ComponentBase
 		// Do NOT block rendering during prerender if user not loaded yet.
 		// Instead, treat as unauthorized until UserContextInitializer finalizes.
 		if (UserAccessor.CurrentUser == null)
+		{
+			IsAuthorized = false;
+			return;
+		}
+
+		var currentUser = UserAccessor.CurrentUser!;
+
+		// administrators have access to everything.
+		if (UserAccessor.IsAdmin(currentUser))
+		{
+			IsAuthorized = true;
+			return;
+		}
+
+		// block further access if AdminOnlyAccess-level access required.
+		if (AdminOnlyAccess)
 		{
 			IsAuthorized = false;
 			return;
