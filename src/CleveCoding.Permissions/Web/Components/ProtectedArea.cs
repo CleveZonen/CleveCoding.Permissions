@@ -39,7 +39,7 @@ public class ProtectedArea : ComponentBase
 	/// Render only when the user is an admin.
 	/// </summary>
 	[Parameter]
-	public bool AdminOnlyAccess { get; set; }
+	public bool AdminAccessRequired { get; set; }
 
 	/// <summary>
 	/// Content to render when authorized.
@@ -75,7 +75,7 @@ public class ProtectedArea : ComponentBase
 		}
 
 		// block further access if AdminOnlyAccess-level access required.
-		if (AdminOnlyAccess)
+		if (AdminAccessRequired)
 		{
 			IsAuthorized = false;
 			return;
@@ -88,7 +88,7 @@ public class ProtectedArea : ComponentBase
 				Action = Action,
 				ActionId = ActionId,
 				Resource = Resource,
-				AdminAccessOnly = AdminOnlyAccess,
+				AdminAccessOnly = AdminAccessRequired,
 				Description = string.Empty,
 			});
 	}

@@ -58,7 +58,7 @@ public class PermissionRouteView : RouteView
 		}
 
 		// if any of the attr has AdminOnlyAccess, forward to error page.
-		if (attrs.Any(x => x.AdminOnlyAccess))
+		if (attrs.Any(x => x.AdminAccessRequired))
 		{
 			NavigationManager.NavigateTo(PermissionConfigurations.ErrorPageUrl, true);
 			return;
