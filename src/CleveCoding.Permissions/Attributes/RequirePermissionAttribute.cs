@@ -13,7 +13,10 @@ public class RequirePermissionAttribute : Attribute
 	public string Resource { get; }
 	public string? ActionId { get; }
 	public UserActionType Action { get; }
+
 	public bool AdminAccessRequired { get; set; }
+
+	public PermissionDescription? PermissionDescription { get; set; }
 
 	public RequirePermissionAttribute(string resource, UserActionType action, string? actionId)
 	{
@@ -27,5 +30,15 @@ public class RequirePermissionAttribute : Attribute
 		Resource = "";
 		Action = UserActionType.None;
 		AdminAccessRequired = adminAccessRequired;
+	}
+
+	public RequirePermissionAttribute(PermissionDescription permissionDescription)
+	{
+		Resource = permissionDescription.Resource;
+		Action = permissionDescription.Action;
+		ActionId = permissionDescription.ActionId;
+		AdminAccessRequired = permissionDescription.AdminAccessRequired;
+
+		PermissionDescription = permissionDescription;
 	}
 }

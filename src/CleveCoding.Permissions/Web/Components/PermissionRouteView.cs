@@ -65,13 +65,15 @@ public class PermissionRouteView : RouteView
 		}
 
 		// access needs to be granted through the PermissionEvaluator.
-		bool hasAccess = attrs.All(attr => PermissionEvaluator.HasPermission(new PermissionDescription
-		{
-			Action = attr.Action,
-			ActionId = attr.ActionId,
-			Resource = attr.Resource,
-			Description = string.Empty,
-		}));
+		bool hasAccess = attrs.All(attr => PermissionEvaluator.HasPermission(attr.PermissionDescription is not null
+			? attr.PermissionDescription
+			: new PermissionDescription
+			{
+				Action = attr.Action,
+				ActionId = attr.ActionId,
+				Resource = attr.Resource,
+				Description = string.Empty,
+			}));
 
 		if (!hasAccess)
 		{

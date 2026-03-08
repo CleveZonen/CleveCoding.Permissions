@@ -29,7 +29,7 @@ public sealed class PermissionDescription
 	/// <summary>
 	/// Permission only when the user is an admin.
 	/// </summary>
-	public bool AdminAccessOnly { get; set; }
+	public bool AdminAccessRequired { get; set; }
 
 	/// <summary>
 	/// The User Data Categories associated with this permission.

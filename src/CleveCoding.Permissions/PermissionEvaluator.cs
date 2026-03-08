@@ -44,7 +44,7 @@ public class PermissionEvaluator(IUserAccessor accessor) : IPermissionEvaluator
 		}
 
 		// not admin but required admin access = no permission!
-		if (permissionDescription.AdminAccessOnly)
+		if (permissionDescription.AdminAccessRequired)
 		{
 			return false;
 		}

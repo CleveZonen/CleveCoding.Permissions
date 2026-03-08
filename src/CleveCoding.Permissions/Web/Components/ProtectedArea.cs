@@ -88,7 +88,7 @@ public class ProtectedArea : ComponentBase
 				Action = Action,
 				ActionId = ActionId,
 				Resource = Resource,
-				AdminAccessOnly = AdminAccessRequired,
+				AdminAccessRequired = AdminAccessRequired,
 				Description = string.Empty,
 			});
 	}
