@@ -22,10 +22,10 @@ public class RequirePermissionAttribute : Attribute
 		Action = action;
 	}
 
-	public RequirePermissionAttribute(bool adminOnlyAccess)
+	public RequirePermissionAttribute(bool adminAccessRequired)
 	{
 		Resource = "";
 		Action = UserActionType.None;
-		AdminAccessRequired = adminOnlyAccess;
+		AdminAccessRequired = adminAccessRequired;
 	}
 }
