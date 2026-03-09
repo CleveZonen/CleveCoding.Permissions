@@ -97,7 +97,7 @@ public class UserDataAccessService(PermissionDbContext Context, IUserAccessor Us
 						x.AnonymizedAt == null)
 			.OrderBy(x => x.CreatedAt).ThenBy(x => x.Id)
 			.Take(500)
-			.ExecuteUpdateAsync(setters => setters // bulk updating
+			.ExecuteUpdateAsync(setters => setters
 				.SetProperty(x => x.AnonymizedAt, now)
 				.SetProperty(x => x.UserId, "ANONYMIZED")
 				.SetProperty(x => x.AccessedByUserId, "ANONYMIZED"));
