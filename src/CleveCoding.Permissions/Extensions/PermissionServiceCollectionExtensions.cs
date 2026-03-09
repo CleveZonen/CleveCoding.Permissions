@@ -17,6 +17,47 @@ public static class PermissionServiceCollectionExtensions
 	/// <summary>
 	/// Wires up all the nessary services for the Permissions Package.
 	/// </summary>
+	/// <param name="services"></param>
+	/// <param name="configuration"></param>
+	public static void AddPermissions(this IServiceCollection services, Action<PermissionConfigurations> configuration)
+	{
+		var permissionConfigurations = new PermissionConfigurations();
+		configuration.Invoke(permissionConfigurations);
+
+		// register the configuration
+		services.AddSingleton(permissionConfigurations);
+
+		// register the DbContext for the permissions,
+		// EF Core is used for storage management.
+		services.AddDbContextFactory<PermissionDbContext>(options =>
+			options.UseSqlServer(permissionConfigurations.ConnectionString, sqlOptions =>
+				sqlOptions.MigrationsAssembly(typeof(PermissionDbContext).Assembly.FullName)));
+
+		// register the UserAccessor and PermissionEvaluator.
+		services.AddHttpContextAccessor();
+		services.AddScoped<IUserAccessor, UserAccessor>();
+		services.AddScoped<IPermissionEvaluator, PermissionEvaluator>();
+
+		// register the Services.
+		services.AddMemoryCache();
+		services.AddTransient<PermissionCache>();
+		services.AddTransient<IUserLookupService, UserLookupService>();
+		services.AddTransient<IPermissionService, PermissionService>();
+		services.AddTransient<IUserDataAccessService, UserDataAccessService>();
+
+		// register the UserContextInitializer
+		// to populate the UserAccount with its permissions.
+		services.AddTransient<UserContextInitializer>();
+		services.AddTransient<ForbiddenExceptionHandler>();
+
+		// register circuit handlers that handle the transition between prerender and interactive mode.
+		services.AddScoped<CircuitHandler, UserCircuitHandler>();
+	}
+
+	/// <summary>
+	/// Wires up all the nessary services for the Permissions Package.
+	/// And scan/register the PermissionDescription.
+	/// </summary>
 	/// <typeparam name="T">Used for MediatR to Register Services from Assembly and scan for PermissionDescription's.</typeparam>
 	/// <param name="services"></param>
 	/// <param name="configuration">Configurations for the Permissions.</param>

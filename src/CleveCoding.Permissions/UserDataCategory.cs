@@ -41,5 +41,5 @@ public enum UserDataCategory : byte
 	Sidejobs = 100,
 
 	[Display(Name = "Geclassificeerd")]
-	Classified = 200
+	Classified = 110
 }
