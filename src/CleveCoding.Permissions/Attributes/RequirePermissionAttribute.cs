@@ -1,12 +1,8 @@
 ﻿namespace CleveCoding.Permissions.Attributes;
 
 /// <summary>
-/// Use the RequirePermission Attribute to protect on Component-level
-/// and inheriting from CleveCoding.Permissions.Web.Components.ProtectedComponent.
+/// Use the RequirePermission Attribute to secure on Page-level.
 /// </summary>
-/// <param name="resource"></param>
-/// <param name="action"></param>
-/// <param name="actionId"></param>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class RequirePermissionAttribute : Attribute
 {
@@ -32,13 +28,21 @@ public class RequirePermissionAttribute : Attribute
 		AdminAccessRequired = adminAccessRequired;
 	}
 
-	public RequirePermissionAttribute(PermissionDescription permissionDescription)
+	public RequirePermissionAttribute(Type requestType)
 	{
-		Resource = permissionDescription.Resource;
-		Action = permissionDescription.Action;
-		ActionId = permissionDescription.ActionId;
-		AdminAccessRequired = permissionDescription.AdminAccessRequired;
+		if (!typeof(IRequirePermission).IsAssignableFrom(requestType))
+		{
+			throw new ArgumentException(
+				$"{requestType.Name} must implement IRequirePermission");
+		}
 
-		PermissionDescription = permissionDescription;
+		PermissionDescription = (PermissionDescription)requestType
+				.GetProperty(nameof(IRequirePermission.RequiredPermission))!
+				.GetValue(null)!;
+
+		Resource = PermissionDescription.Resource;
+		Action = PermissionDescription.Action;
+		ActionId = PermissionDescription.ActionId;
+		AdminAccessRequired = PermissionDescription.AdminAccessRequired;
 	}
 }

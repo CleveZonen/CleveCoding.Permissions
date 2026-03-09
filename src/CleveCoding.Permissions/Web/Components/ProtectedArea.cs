@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Components.Rendering;
 
 namespace CleveCoding.Permissions.Web.Components;
 
+/// <summary>
+/// Use the ProtectedArea to secure on Component-level.
+/// </summary>
 public class ProtectedArea : ComponentBase
 {
 	[Inject]
