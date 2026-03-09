@@ -31,7 +31,7 @@ public interface IUserDataAccessService
 	/// <param name="dataCategory"></param>
 	/// <param name="date"></param>
 	/// <returns></returns>
-	Task AnonymizeOlderThanAsync(UserDataCategory dataCategory, DateTime date);
+	Task<int> AnonymizeOlderThanAsync(UserDataCategory dataCategory, DateTime date);
 
 	/// <summary>
 	/// Delete data access logs older than the specified date for the given data category.
@@ -39,7 +39,7 @@ public interface IUserDataAccessService
 	/// <param name="dataCategory"></param>
 	/// <param name="date"></param>
 	/// <returns></returns>
-	Task DeleteOlderThanAsync(UserDataCategory dataCategory, DateTime date);
+	Task<int> DeleteOlderThanAsync(UserDataCategory dataCategory, DateTime date);
 }
 
 public class UserDataAccessService(PermissionDbContext Context, IUserAccessor UserAccessor)
@@ -88,29 +88,29 @@ public class UserDataAccessService(PermissionDbContext Context, IUserAccessor Us
 	}
 
 	/// <inheritdoc/>
-	public async Task AnonymizeOlderThanAsync(UserDataCategory dataCategory, DateTime date)
+	public async Task<int> AnonymizeOlderThanAsync(UserDataCategory dataCategory, DateTime date)
 	{
-		var oldLogs = Context.UserDataAccessLogs
-			.Where(x => x.DataCategory == dataCategory && x.CreatedAt.Date < date.Date);
-
-		await foreach (var log in oldLogs.AsAsyncEnumerable())
-		{
-			log.UserId = "ANONYMIZED";
-			log.AccessedByUserId = "ANONYMIZED";
-		}
-
-		await Context.SaveChangesAsync();
+		var now = DateTime.UtcNow;
+		return await Context.UserDataAccessLogs
+			.Where(x => x.DataCategory == dataCategory &&
+						x.CreatedAt < date &&
+						x.AnonymizedAt == null)
+			.OrderBy(x => x.CreatedAt).ThenBy(x => x.Id)
+			.Take(500)
+			.ExecuteUpdateAsync(setters => setters // bulk updating
+				.SetProperty(x => x.AnonymizedAt, now)
+				.SetProperty(x => x.UserId, "ANONYMIZED")
+				.SetProperty(x => x.AccessedByUserId, "ANONYMIZED"));
 	}
 
 	/// <inheritdoc/>
-	public async Task DeleteOlderThanAsync(UserDataCategory dataCategory, DateTime date)
+	public async Task<int> DeleteOlderThanAsync(UserDataCategory dataCategory, DateTime date)
 	{
-		var oldLogs = await Context.UserDataAccessLogs
-			.Where(x => x.DataCategory == dataCategory && x.CreatedAt.Date < date.Date)
-			.ToArrayAsync();
-
-		Context.UserDataAccessLogs.RemoveRange(oldLogs);
-
-		await Context.SaveChangesAsync();
+		return await Context.UserDataAccessLogs
+			.Where(x => x.DataCategory == dataCategory &&
+						x.CreatedAt < date)
+			.OrderBy(x => x.CreatedAt)
+			.Take(500)
+			.ExecuteDeleteAsync();
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using CleveCoding.Kernel.Attributes;
 using CleveCoding.Kernel.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace CleveCoding.Permissions.Entities;
 
@@ -38,4 +39,10 @@ public record UserDataAccessLogEntity : Entity<long>
 	/// DateTime when the access occurred.
 	/// </summary>
 	public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+	/// <summary>
+	/// DateTime this record has been anonymized.
+	/// </summary>
+	[Precision(2)]
+	public DateTime? AnonymizedAt { get; set; }
 }

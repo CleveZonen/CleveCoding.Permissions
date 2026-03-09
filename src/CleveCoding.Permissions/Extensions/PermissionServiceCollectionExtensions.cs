@@ -65,37 +65,7 @@ public static class PermissionServiceCollectionExtensions
 	public static void AddPermissions<T>(this IServiceCollection services, Action<PermissionConfigurations> configuration, MediatRServiceConfiguration? mediatRConfiguration = null)
 		where T : IRequirePermission
 	{
-		var permissionConfigurations = new PermissionConfigurations();
-		configuration.Invoke(permissionConfigurations);
-
-		// register the configuration
-		services.AddSingleton(permissionConfigurations);
-
-		// register the DbContext for the permissions,
-		// EF Core is used for storage management.
-		services.AddDbContextFactory<PermissionDbContext>(options =>
-			options.UseSqlServer(permissionConfigurations.ConnectionString, sqlOptions =>
-				sqlOptions.MigrationsAssembly(typeof(PermissionDbContext).Assembly.FullName)));
-
-		// register the UserAccessor and PermissionEvaluator.
-		services.AddHttpContextAccessor();
-		services.AddScoped<IUserAccessor, UserAccessor>();
-		services.AddScoped<IPermissionEvaluator, PermissionEvaluator>();
-
-		// register the Services.
-		services.AddMemoryCache();
-		services.AddTransient<PermissionCache>();
-		services.AddTransient<IUserLookupService, UserLookupService>();
-		services.AddTransient<IPermissionService, PermissionService>();
-		services.AddTransient<IUserDataAccessService, UserDataAccessService>();
-
-		// register the UserContextInitializer
-		// to populate the UserAccount with its permissions.
-		services.AddTransient<UserContextInitializer>();
-		services.AddTransient<ForbiddenExceptionHandler>();
-
-		// register circuit handlers that handle the transition between prerender and interactive mode.
-		services.AddScoped<CircuitHandler, UserCircuitHandler>();
+		services.AddPermissions(configuration);
 
 		// register the MediatR permissions checks.
 		if (mediatRConfiguration is not null)
